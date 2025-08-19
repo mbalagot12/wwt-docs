@@ -1,0 +1,157 @@
+site_name: Arista Campus Workshop
+site_description: Arista Campus Workshop
+watch: ["docs", "mkdocs.yml"]
+
+nav:
+    - Home:
+        - Welcome: index.md
+        - Lab Access: lab/access.md
+    #- Lab Guides:
+    - Wired Lab Guides:
+        - A01 - Explore EOS: a_wired/a01_lab.md
+        - A02 - Provisioning a Campus Fabric: a_wired/a02_atd.md
+        - A03 - Access Interface Configuration: a_wired/a03_lab.md
+        - A04 - Operations, Dashboards, and Events: a_wired/a04_lab.md
+    - Wireless Lab Guides:
+        - B01 - Wireless Setup: b_wireless/b01_lab.md
+        - B02 - WiFi Troubleshooting: b_wireless/b02_lab.md
+        - B03 - Guest Wireless with AGNI: b_wireless/b03_lab.md
+        - B04 - Smart System Upgrade: b_wireless/b04_lab.md
+    - Security Lab Guides:
+        - C01 - AGNI and WiFi EAP-TLS 802.1X: c_security/c01_lab.md
+        - C02 - AGNI UPSK Wireless Policy: c_security/c02_lab.md
+        - C03 - AGNI and Wired EAP-TLS 802.1X: c_security/c03_lab.md
+    - References:
+        - General:
+            - Agenda: references/agenda.md
+            - WiFi Passwords: references/wifi_password.md
+            - Lab Assignment: references/lab_assignment.md
+        - Arista Configuration Tools: 
+            - Intangi Iris: references/config_tools.md
+        - Arista Advance EOS:
+            - Arista EOS Tips & Tricks: references/arista_eos_guide.md
+        - Arista @Home:
+            - Configuring Arista switches and APs for Home Use: references/arista_home.md
+        - Working with Certificates:
+            - Cut-and-Paste Method: references/cut_paste_certs.md
+        - Wired:
+            - Interface Diagnostics: references/interface_diag.md
+            - AGNI Tacacs: references/agni_tacacs.md
+        - Wireless:
+            - Configuring Radius: references/radius.md
+            - Guest AP Tunnel: references/l2tunnel.md
+            - RadSec: references/radsec.md
+            - WIPS: references/wips.md
+        #- Wireless Captive Portal: references/captive_portal.md
+        
+
+copyright: Copyright &copy; 2025 Arista Networks
+
+extra:
+    social:
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/AristaNetworks
+    - icon: fontawesome/solid/globe
+      link: https://www.arista.com
+    version:
+        provider: mike
+        default: latest
+        alias: true
+theme:
+    name: material
+    custom_dir: docs/overrides
+    highlightjs: true
+    hljs_languages:
+        - yaml
+
+    features:
+        - content.code.annotate
+        - content.code.copy
+        - content.tabs.link
+        - content.tooltips
+        - header.autohide
+        - navigation.path
+        - navigation.top
+        - navigation.tabs
+        - navigation.tabs.sticky
+        - navigation.tracking
+        # - tables
+        - toc.follow
+        # - toc.integrate
+
+    favicon: assets/logo.png
+
+    font:
+        text: Roboto
+        code: Fira Mono
+
+    language: en
+
+    logo: assets/logo.png
+
+    palette:
+    # Palette toggle for light mode
+        - scheme: default
+          primary: custom
+          toggle:
+            icon: material/weather-night
+            name: Switch to dark mode
+
+    # Palette toggle for dark mode
+        - scheme: slate
+          primary: custom
+          toggle:
+            icon: material/weather-sunny
+            name: Switch to light mode
+
+markdown_extensions:
+    - abbr
+    - admonition
+    - attr_list
+    - def_list
+    - footnotes
+    - md_in_html
+    - pymdownx.arithmatex
+    - pymdownx.caret
+    - pymdownx.critic
+    - pymdownx.details
+    - pymdownx.emoji:
+        emoji_index: !!python/name:material.extensions.emoji.twemoji
+        emoji_generator: !!python/name:material.extensions.emoji.to_svg
+        options: 
+            custom_icons:
+            - overrides/.icons
+    - pymdownx.highlight:
+        anchor_linenums: true
+    - pymdownx.inlinehilite
+    - pymdownx.keys
+    - pymdownx.mark
+    - pymdownx.smartsymbols
+    - pymdownx.snippets
+    - pymdownx.superfences
+    - pymdownx.tabbed:
+        alternate_style: true
+    - pymdownx.tasklist:
+        custom_checkbox: true
+    - pymdownx.arithmatex:
+        generic: true
+    - pymdownx.tilde
+    - tables
+    - toc:
+        permalink: true
+        toc_depth: 3
+
+plugins:
+    - git-revision-date
+    - glightbox
+    - search:
+        lang: en
+        # indexing: full
+    - mike:
+        alias_type: redirect
+    - table-reader
+    - print-site:
+        path_to_pdf: "print_page"
+
+extra_css:
+    - stylesheets/extra.css

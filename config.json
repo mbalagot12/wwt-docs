@@ -1,0 +1,20 @@
+{
+    "ignorePatterns": [
+        {
+            "pattern": "^https://marketplace.visualstudio.com/"
+        },
+        {
+            "pattern": "^https://j2live.ttl255.com/"
+        },
+        {
+            "pattern": "^https://github.com/aristanetworks/tech-library"
+        },
+        {
+            "pattern": "^https://github.com/aristanetworks/techleads-internal"
+        }
+    ],
+    "aliveStatusCodes": [
+        200,
+        406
+    ]
+}

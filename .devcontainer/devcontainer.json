@@ -1,0 +1,40 @@
+{
+    
+    "image": "ghcr.io/aristanetworks/avd/universal:python3.11-avd-v4.10.0",
+    // "build": {
+    //     "dockerfile": "./Dockerfile",
+    //     "context": ".",
+    //     "args": {
+    //         "FROM_IMAGE": "mcr.microsoft.com/devcontainers/base",
+    //         "FROM_VARIANT": "ubuntu-22.04",
+    //         "USERNAME": "vscode"
+    //     }
+    // },
+    "features": {
+		"ghcr.io/shinepukur/devcontainer-features/vale:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+	"customizations": {
+        "vscode": {
+            "extensions": [
+                "eamodio.gitlens",
+                "github.vscode-pull-request-github",
+                "ms-python.python",
+                "redhat.vscode-yaml",
+                "PKief.material-icon-theme",
+                "samuelcolvin.jinjahtml",
+                "yzhang.markdown-all-in-one",
+                "ms-azuretools.vscode-docker",
+                "davidanson.vscode-markdownlint",
+                "oderwat.indent-rainbow",
+                "AykutSarac.jsoncrack-vscode",
+                "hilleer.yaml-plus-json"
+            ]
+        }
+    },
+    // "mounts": [
+	// 	"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+	// 	"source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+	// ],
+    "forwardPorts": [8000, 8000]
+}
