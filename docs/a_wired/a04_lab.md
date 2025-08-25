@@ -190,7 +190,7 @@ Let's get started:
         | --------------------- | ------------------------------- |
         | Data Source           | Interfaces                      |
         | View Type             | Multiple Metrics for One Source |
-        | Interface (device)    | `pod##-leaf1a`                  |
+        | Interface (device)    | `pod##-leaf1`                  |
         | Interface (interface) | `Ethernet1`                     |
         | Metrics #1            | Bitrate In                      |
         | Metrics #2            | Bitrate Out                     |

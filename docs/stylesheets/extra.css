@@ -82,3 +82,15 @@
   } */
 
 /* .highlight.no-copy .md-clipboard { display: none; } */
+
+/* Make ATD Token column wider */
+.md-typeset table td:nth-child(4) {
+  min-width: 200px;
+  word-break: break-all;
+}
+
+/* Or target all table cells with long URLs */
+.md-typeset table td {
+  word-wrap: break-word;
+  max-width: 300px;
+}

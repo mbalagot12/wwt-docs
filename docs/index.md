@@ -30,13 +30,13 @@ We appreciate your desire to get your hands dirty and diving into the Arista cam
 
     [:material-login: Hop into A-01](./a_wired/a01_lab.md){ .md-button .md-button--primary }
 
-- :cloudvision: **A02-Lab: Day 1 Operations**
+<!-- - :cloudvision: **A02-Lab: Day 1 Operations**
 
     ---
 
     Get started with onboarding new Arista EOS switches using ZTP, CloudVision, and our Campus Studios.
 
-    [:material-login: Hop into A-02](./a_wired/a02_lab.md){ .md-button .md-button--primary }
+    [:material-login: Hop into A-02](./a_wired/a02_lab.md){ .md-button .md-button--primary } -->
 
 - :cloudvision: **A02-ATD-Lab: Day 1 Operations - Virtual Lab**
 
