@@ -28,12 +28,10 @@ Before we begin the hands-on portion, watch this demonstration video that shows 
     onloadeddata="videoLoaded()"
     onerror="videoError()"
   >
-    <!-- MkDocs standard paths for docs/demos/ folder -->
-    <source src="demos/01_inventory_studio.mp4" type="video/mp4">
-    <source src="./demos/01_inventory_studio.mp4" type="video/mp4">
+    <!-- Multiple paths for Mike versioning -->
+    <source src="../../demos/01_inventory_studio.mp4" type="video/mp4">
     <source src="../demos/01_inventory_studio.mp4" type="video/mp4">
-    <!-- Absolute path from site root -->
-    <source src="/demos/01_inventory_studio.mp4" type="video/mp4">
+    <source src="demos/01_inventory_studio.mp4" type="video/mp4">
     
     <!-- Fallback content -->
     <div class="video-fallback">
@@ -98,12 +96,10 @@ Now that you've seen the process, let's onboard your assigned switch using the s
     onloadeddata="videoLoaded()"
     onerror="videoError()"
   >
-    <!-- MkDocs standard paths for docs/demos/ folder -->
-    <source src="demos/02_base_config.mp4" type="video/mp4">
-    <source src="./demos/02_base_config.mp4" type="video/mp4">
+    <!-- Multiple paths for Mike versioning -->
+    <source src="../../demos/02_base_config.mp4" type="video/mp4">
     <source src="../demos/02_base_config.mp4" type="video/mp4">
-    <!-- Absolute path from site root -->
-    <source src="/demos/02_base_config.mp4" type="video/mp4">
+    <source src="demos/02_base_config.mp4" type="video/mp4">
     
     <!-- Fallback content -->
     <div class="video-fallback">
@@ -185,12 +181,10 @@ Now that your switches are onboarded, let's configure port profiles and apply th
     onloadeddata="videoLoaded()"
     onerror="videoError()"
   >
-    <!-- MkDocs standard paths for docs/demos/ folder -->
-    <source src="demos/03_campus_fabric.mp4" type="video/mp4">
-    <source src="./demos/03_campus_fabric.mp4" type="video/mp4">
+    <!-- Multiple paths for Mike versioning -->
+    <source src="../../demos/03_campus_fabric.mp4" type="video/mp4">
     <source src="../demos/03_campus_fabric.mp4" type="video/mp4">
-    <!-- Absolute path from site root -->
-    <source src="/demos/03_campus_fabric.mp4" type="video/mp4">
+    <source src="demos/03_campus_fabric.mp4" type="video/mp4">
     
     <!-- Fallback content -->
     <div class="video-fallback">
