@@ -56,10 +56,10 @@ The `Configure` section of CV-CUE is composed of multiple parts, including WiFi,
 
         | Student   |     Name      |
         | --------- | :-----------: |
-        | Student 1 | `ATD-##A-EAP` |
-        | Student 2 | `ATD-##B-EAP` |
+        | Student 1 | `ATD-##-EAP`  |
+        | Student 2 | `ATD-##-EAP`  |
 
-        *where ## is a 2 digit character between 01-12 that was assigned to your lab/Pod*
+        *where ## is a 2 digit character between 01-20 that was assigned to your lab/Pod*
 
     ![Wireless EAP-TLS](./assets/images/c01/02_eap_wireless.png)
 
@@ -120,9 +120,9 @@ docs/snippets/login_agni.md
     ???+ example "Network Settings"
         | Field               |          Student 1           |          Student 2           |
         | ------------------- | :--------------------------: | :--------------------------: |
-        | Name                |    `ATD-##A-SSID-EAP-TLS`    |    `ATD-##B-SSID-EAP-TLS`    |
+        | Name                |    `ATD-##-SSID-EAP-TLS`     |    `ATD-##-SSID-EAP-TLS`     |
         | Connection Type     |           Wireless           |           Wireless           |
-        | SSID                |        `ATD-##A-EAP`         |        `ATD-##B-EAP`         |
+        | SSID                |        `ATD-##-EAP`          |        `ATD-##-EAP`          |
         | Authentication Type | Client Certificate (EAP-TLS) | Client Certificate (EAP-TLS) |
 
     ![Wireless EAP-TLS](./assets/images/c01/02_agni.png)
@@ -137,8 +137,8 @@ docs/snippets/login_agni.md
     ???+ example "Network Settings"
         | Field       |       Student 1        |       Student 2        |
         | ----------- | :--------------------: | :--------------------: |
-        | Name        | `ATD-##A-SSID-EAP-TLS` | `ATD-##B-SSID-EAP-TLS` |
-        | Description | `ATD-##A-SSID-EAP-TLS` | `ATD-##B-SSID-EAP-TLS` |
+        | Name        | `ATD-##-SSID-EAP-TLS`  | `ATD-##-SSID-EAP-TLS`  |
+        | Description | `ATD-##-SSID-EAP-TLS`  | `ATD-##-SSID-EAP-TLS`  |
 
     ![Wireless EAP-TLS](./assets/images/c01/04_agni.png)
 

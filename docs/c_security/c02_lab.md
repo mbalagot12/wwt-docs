@@ -12,7 +12,7 @@ docs/snippets/login_cvcue.md
 
 Let's create our new UPSK SSID by copying/modifying the PSK SSID we created in the CV-CUE lab.
 
-1. While on your `CorpA/B` folder, Click on `Configure` and then `WiFi`
+1. While on your `CorpA` folder, Click on `Configure` and then `WiFi`
 
     ![Wireless EAP-TLS](./assets/images/c02/01_cue_ssid.png)
 
@@ -22,8 +22,8 @@ Let's create our new UPSK SSID by copying/modifying the PSK SSID we created in t
 
         | Student   |     Name      |
         | --------- | :-----------: |
-        | Student 1 | `ATD-##A-PSK` |
-        | Student 2 | `ATD-##B-PSK` |
+        | Student 1 | `ATD-##-PSK`  |
+        | Student 2 | `ATD-##-PSK`  |
 
     *where ## is a 2 digit character between 01-12 that was assigned to your lab/Pod*
 
@@ -43,8 +43,8 @@ Let's create our new UPSK SSID by copying/modifying the PSK SSID we created in t
 
         | Student      |   Student 1    |   Student 2    |
         | ------------ | :------------: | :------------: |
-        | Name         | `ATD-##A-UPSK` | `ATD-##B-UPSK` |
-        | Profile Name | `ATD-##A-UPSK` | `ATD-##B-UPSK` |
+        | Name         | `ATD-##-UPSK`  | `ATD-##-UPSK`  |
+        | Profile Name | `ATD-##-UPSK`  | `ATD-##-UPSK`  |
 
     ![Wireless EAP-TLS](./assets/images/c02/05_cue_ssid.png)
 
@@ -104,9 +104,9 @@ In this section we are going to configure AGNI for our new SSID network and appl
 
         | Field               |     Student 1     |     Student 2     |
         | ------------------- | :---------------: | :---------------: |
-        | Name                |  `ATD-##A-UPSK`   |  `ATD-##B-UPSK`   |
+        | Name                |  `ATD-##-UPSK`    |  `ATD-##-UPSK`    |
         | Connection Type     |     Wireless      |     Wireless      |
-        | SSID                |  `ATD-##A-UPSK`   |  `ATD-##B-UPSK`   |
+        | SSID                |  `ATD-##-UPSK`    |  `ATD-##-UPSK`   |
         | Authentication Type | Unique PSK (UPSK) | Unique PSK (UPSK) |
 
     ![Wireless EAP-TLS](./assets/images/c02/agni/02_agni.png)
@@ -131,9 +131,9 @@ In this section we are going to configure AGNI for our new SSID network and appl
 
         | Field        |               Student 1               |               Student 2               |
         | ------------ | :-----------------------------------: | :-----------------------------------: |
-        | Name         |            `ATD-##A-UPSK`             |            `ATD-##B-UPSK`             |
-        | Description  |            `ATD-##A-UPSK`             |            `ATD-##B-UPSK`             |
-        | Condition #1 |    `Network:Name is ATD-##A-UPSK`     |    `Network:Name is ATD-##A-UPSK`     |
+        | Name         |            `ATD-##-UPSK`              |            `ATD-##-UPSK`              |
+        | Description  |            `ATD-##-UPSK`              |            `ATD-##-UPSK`              |
+        | Condition #1 |    `Network:Name is ATD-##-UPSK`      |    `Network:Name is ATD-##-UPSK`      |
         | Condition #2 | `Network:Authentication Type is UPSK` | `Network:Authentication Type is UPSK` |
         | Action #1    |            `Allow Access`             |            `Allow Access`             |
 
@@ -202,8 +202,8 @@ In this section, you will simulate your device as an IoT device.
 
         | Field                                   |        Student 1         |        Student 2         |
         | --------------------------------------- | :----------------------: | :----------------------: |
-        | Name                                    | `CorpA Approved Devices` | `CorpB Approved Devices` |
-        | Description                             | `CorpA Approved Devices` | `CorpB Approved Devices` |
+        | Name                                    | `CorpA Approved Devices` | `CorpA Approved Devices` |
+        | Description                             | `CorpA Approved Devices` | `CorpA Approved Devices` |
         | User Association                        |   Not user associated    |   Not user associated    |
         | Group UPSK                              |         Enabled          |         Enabled          |
 

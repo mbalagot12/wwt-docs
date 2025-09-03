@@ -158,3 +158,5 @@ docs_sharpened/
 sharpen_images.py
 # Shell scripts
 *.sh
+#backup
+.backup

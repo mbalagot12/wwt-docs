@@ -144,8 +144,8 @@ Expand the `Locations` pane by clicking on the hamburger icon :material-menu:. N
 
         | Student   | Folder Name |
         | --------- | :---------: |
-        | Student-a |   `ACorp`   |
-        | Student-b |   `BCorp`   |
+        | Student1  |   `ACorp`   |
+        | Student2  |   `ACorp`   |
 
     ![Campus Studio](./assets/images/b01/config/03_config.png){ width=600" }
 
@@ -209,30 +209,19 @@ For this workshop event, we will be reducing WiFi Radio channel width and transm
 
         |  Pod  | Student | 2.4 GHz  | 5.GHz | Channel Width | Transmit Power |
         | :---: | :-----: | :------: | :---: | :-----------: | :------------: |
-        |  01   |    a    | Disabled |  36   |     20MHz     |      4bBm      |
-        |  01   |    b    | Disabled |  40   |     20MHz     |      4bBm      |
-        |  02   |    a    | Disabled |  44   |     20MHz     |      4bBm      |
-        |  02   |    b    | Disabled |  48   |     20MHz     |      4bBm      |
-        |  03   |    a    | Disabled |  52   |     20MHz     |      4bBm      |
-        |  03   |    b    | Disabled |  56   |     20MHz     |      4bBm      |
-        |  04   |    a    | Disabled |  60   |     20MHz     |      4bBm      |
-        |  04   |    b    | Disabled |  64   |     20MHz     |      4bBm      |
-        |  05   |    a    | Disabled |  100  |     20MHz     |      4bBm      |
-        |  05   |    b    | Disabled |  104  |     20MHz     |      4bBm      |
-        |  06   |    a    | Disabled |  108  |     20MHz     |      4bBm      |
-        |  06   |    b    | Disabled |  112  |     20MHz     |      4bBm      |
-        |  07   |    a    | Disabled |  120  |     20MHz     |      4bBm      |
-        |  07   |    b    | Disabled |  124  |     20MHz     |      4bBm      |
-        |  08   |    a    | Disabled |  128  |     20MHz     |      4bBm      |
-        |  08   |    b    | Disabled |  132  |     20MHz     |      4bBm      |
-        |  09   |    a    | Disabled |  136  |     20MHz     |      4bBm      |
-        |  09   |    b    | Disabled |  140  |     20MHz     |      4bBm      |
-        |  10   |    a    | Disabled |  144  |     20MHz     |      4bBm      |
-        |  10   |    b    | Disabled |  149  |     20MHz     |      4bBm      |
-        |  11   |    a    | Disabled |  153  |     20MHz     |      4bBm      |
-        |  11   |    b    | Disabled |  157  |     20MHz     |      4bBm      |
-        |  12   |    a    | Disabled |  161  |     20MHz     |      4bBm      |
-        |  12   |    b    | Disabled |  165  |     20MHz     |      4bBm      |
+        |  01   |    1    | Disabled |  36   |     20MHz     |      4bBm      |
+        |  02   |    2    | Disabled |  44   |     20MHz     |      4bBm      |
+        |  03   |    3    | Disabled |  52   |     20MHz     |      4bBm      |
+        |  04   |    4    | Disabled |  60   |     20MHz     |      4bBm      |
+        |  05   |    5    | Disabled |  100  |     20MHz     |      4bBm      |
+        |  06   |    6    | Disabled |  108  |     20MHz     |      4bBm      |
+        |  07   |    7    | Disabled |  120  |     20MHz     |      4bBm      |
+        |  08   |    8    | Disabled |  128  |     20MHz     |      4bBm      |
+        |  09   |    9    | Disabled |  136  |     20MHz     |      4bBm      |
+        |  10   |    10   | Disabled |  144  |     20MHz     |      4bBm      |
+        |  11   |    11   | Disabled |  153  |     20MHz     |      4bBm      |
+        |  12   |    12   | Disabled |  161  |     20MHz     |      4bBm      |
+
 
 4. Click `Save` at the bottom of the page then click `Continue` to confirm.
 5. Click `Continue` to commit changes
@@ -358,7 +347,7 @@ In this section of the lab, we will be working in the `WiFi` configuration area.
 
         | Student                       |   Student 1    |   Student 2    |
         | ----------------------------- | :------------: | :------------: |
-        | SSID Name                     | `ATD-##A-PSK`  | `ATD-##B-PSK`  |
+        | SSID Name                     | `ATD-##-PSK`   | `ATD-##-PSK`   |
         | Profile Name                  |   Auto Fill    |   Auto Fill    |
         | Association Type (drop down)  |      WPA2      |      WPA2      |
         | Authentication (radio button) |      PSK       |      PSK       |

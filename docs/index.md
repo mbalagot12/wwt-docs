@@ -4,7 +4,88 @@ Welcome to our Arista hands-on campus workshop! 🚀
 
 We appreciate your desire to get your hands dirty and diving into the Arista campus solutions. Over the next two days, you'll have the opportunity to work with real hardware and software, just as it's deployed in the field. Each lab is designed to simulate real-world scenarios, giving you practical experience. Whether you're deploying and configuring switches, operating the network, or troubleshooting client connectivity issues, you'll gain a better understanding of the campus lifecycle. Get ready to dive in, experiment, and learn by doing!
 
-![Campus Workshop Table](./assets/images/banner.png)
+<div style="width: 100%; margin: 20px 0;">
+    <div style="width: 100%; height: 600px; background: linear-gradient(135deg, #0B1426 0%, #1E3A5F 50%, #2B5A87 100%); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; border-radius: 12px;">
+        
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 2px, transparent 2px), radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 60px 60px, 40px 40px; animation: float 20s ease-in-out infinite;"></div>
+        
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;">
+            <div style="position: absolute; width: 80px; height: 20px; background: linear-gradient(45deg, #2196F3, #64B5F6); border-radius: 4px; box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3); top: 15%; left: 10%; animation: float-switch 15s ease-in-out infinite;"></div>
+            <div style="position: absolute; width: 80px; height: 20px; background: linear-gradient(45deg, #2196F3, #64B5F6); border-radius: 4px; box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3); top: 25%; right: 15%; animation: float-switch 18s ease-in-out infinite reverse;"></div>
+            <div style="position: absolute; width: 80px; height: 20px; background: linear-gradient(45deg, #2196F3, #64B5F6); border-radius: 4px; box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3); bottom: 20%; left: 8%; animation: float-switch 12s ease-in-out infinite;"></div>
+        </div>
+
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+            <div style="position: absolute; background: linear-gradient(90deg, transparent, rgba(79, 195, 247, 0.6), transparent); height: 2px; animation: pulse-line 3s ease-in-out infinite; top: 30%; left: 20%; width: 200px; transform: rotate(25deg);"></div>
+            <div style="position: absolute; background: linear-gradient(90deg, transparent, rgba(79, 195, 247, 0.6), transparent); height: 2px; animation: pulse-line 3s ease-in-out infinite; top: 60%; right: 25%; width: 150px; transform: rotate(-15deg);"></div>
+            <div style="position: absolute; background: linear-gradient(90deg, transparent, rgba(79, 195, 247, 0.6), transparent); height: 2px; animation: pulse-line 3s ease-in-out infinite; bottom: 35%; left: 15%; width: 180px; transform: rotate(45deg);"></div>
+        </div>
+
+        <div style="position: absolute; top: 30px; right: 40px; background: rgba(76, 175, 80, 0.9); color: white; padding: 12px 24px; border-radius: 25px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); animation: pulse-badge 2s ease-in-out infinite;">
+            Hands-On Experience
+        </div>
+
+        <div style="position: relative; z-index: 10; text-align: center; max-width: 1200px; padding: 0 40px;">
+            <div style="color: #FFFFFF; font-size: 48px; font-weight: bold; letter-spacing: 3px; margin-bottom: 20px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">ARISTA</div>
+            <h1 style="color: #FFFFFF; font-size: 56px; font-weight: 300; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); margin-top: 0;">Campus Workshop</h1>
+            <p style="color: #B8D4F0; font-size: 24px; font-weight: 400; margin-bottom: 40px; line-height: 1.4;">Master Modern Campus Networking Solutions<br>Real Hardware • Real Scenarios • Real Results</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; margin-top: 50px; max-width: 900px; margin-left: auto; margin-right: auto;">
+                <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 25px 20px; text-align: center; transition: all 0.3s ease;">
+                    <div style="font-size: 48px; margin-bottom: 15px; color: #4FC3F7; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🔌</div>
+                    <div style="color: #FFFFFF; font-size: 16px; font-weight: 600; margin-bottom: 8px;">Wired Solutions</div>
+                    <div style="color: #B8D4F0; font-size: 12px; line-height: 1.3;">EOS, ZTP, CloudVision Studios</div>
+                </div>
+                
+                <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 25px 20px; text-align: center; transition: all 0.3s ease;">
+                    <div style="font-size: 48px; margin-bottom: 15px; color: #4FC3F7; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">📡</div>
+                    <div style="color: #FFFFFF; font-size: 16px; font-weight: 600; margin-bottom: 8px;">Wireless Edge</div>
+                    <div style="color: #B8D4F0; font-size: 12px; line-height: 1.3;">CV-CUE, WiFi 6E/7, AGNI</div>
+                </div>
+                
+                <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 25px 20px; text-align: center; transition: all 0.3s ease;">
+                    <div style="font-size: 48px; margin-bottom: 15px; color: #4FC3F7; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🛡️</div>
+                    <div style="color: #FFFFFF; font-size: 16px; font-weight: 600; margin-bottom: 8px;">Security</div>
+                    <div style="color: #B8D4F0; font-size: 12px; line-height: 1.3;">EAP-TLS, UPSK, Zero Trust</div>
+                </div>
+                
+                <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 25px 20px; text-align: center; transition: all 0.3s ease;">
+                    <div style="font-size: 48px; margin-bottom: 15px; color: #4FC3F7; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">📊</div>
+                    <div style="color: #FFFFFF; font-size: 16px; font-weight: 600; margin-bottom: 8px;">Observability</div>
+                    <div style="color: #B8D4F0; font-size: 12px; line-height: 1.3;">Monitoring, Analytics, AI Insights</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes float-switch {
+    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+    50% { transform: translateY(-20px) rotate(2deg); opacity: 0.8; }
+}
+
+@keyframes pulse-line {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@media (max-width: 768px) {
+    .banner-content h1 { font-size: 36px !important; }
+    .banner-content p { font-size: 18px !important; }
+    .solutions-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 20px !important; }
+}
+</style>
 
 <div class="grid cards" markdown>
 

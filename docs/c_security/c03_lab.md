@@ -130,7 +130,7 @@ In this lab you will be configuring RadSec on your lab switches by adding the Ra
 
     ![Campus Studio](./assets/images/c03/09_radsec.png)
 
-11. See the [Configuring RadSec](../references/radsec.md) in EOS for additional information. -->
+11. See the [Configuring RadSec](../references/radsec_on_eos.md) in EOS for additional information. -->
 
 --8<--
 docs/snippets/login_agni.md
@@ -152,9 +152,9 @@ docs/snippets/login_agni.md
     ???+ example "Network Settings"
         | Field                       |  Student 1   |  Student 2   |
         | --------------------------- | :----------: | :----------: |
-        | Name                        |   WIRED-A    |   WIRED-B    |
-        | Description                 |   WIRED-A    |   WIRED-B    |
-        | Available Devices (`+ Add`) | POD##-LEAF1A | POD##-LEAF1B |
+        | Name                        |   WIRED-A    |   WIRED-A    |
+        | Description                 |   WIRED-A    |   WIRED-A    |
+        | Available Devices (`+ Add`) | pod##-leaf1  | pod##-leaf1  |
 
 5. Fill in and select the Following fields on the `Add Network` page.
 
@@ -162,9 +162,9 @@ docs/snippets/login_agni.md
 
         | Field                          |           Student 1           |           Student 2           |
         | ------------------------------ | :---------------------------: | :---------------------------: |
-        | Name                           |         ATD-##A-WIRED         |         ATD-##B-WIRED         |
+        | Name                           |         ATD-##-WIRED          |         ATD-##-WIRED          |
         | Connection Type                |             Wired             |             Wired             |
-        | Access Device Group            |            WIRED-A            |            WIRED-B            |
+        | Access Device Group            |            WIRED-A            |            WIRED-A            |
         | Status                         |            Enabled            |            Enabled            |
         | Authentication type            | Client Certificate (EAP-TLS)  | Client Certificate (EAP-TLS)  |
         | Fallback to mac Authentication |            Enabled            |            Enabled            |
@@ -185,9 +185,9 @@ docs/snippets/login_agni.md
 
         | Field        |                           Student 1                           |                           Student 2                           |
         | ------------ | :-----------------------------------------------------------: | :-----------------------------------------------------------: |
-        | Name         |                         ATD-##A-WIRED                         |                         ATD-##B-WIRED                         |
-        | Description  |                         ATD-##A-WIRED                         |                         ATD-##B-WIRED                         |
-        | Condition #1 |                `Network:Name is ATD-##A-WIRED`                |                `Network:Name is ATD-##B-WIRED`                |
+        | Name         |                         ATD-##-WIRED                         |                         ATD-##-WIRED                         |
+        | Description  |                         ATD-##-WIRED                         |                         ATD-##-WIRED                         |
+        | Condition #1 |                `Network:Name is ATD-##A-WIRED`                |                `Network:Name is ATD-##-WIRED`                |
         | Condition #2 | `Network:Authentication Type is Client Certificate (EAP-TLS)` | `Network:Authentication Type is Client Certificate (EAP-TLS)` |
         | Action #1    |                        `Allow Access`                         |                        `Allow Access`                         |
 

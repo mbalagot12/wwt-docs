@@ -17,7 +17,11 @@ Your environment has been pre-configured with a sample Campus to assist with the
 
 To begin this lab, you'll need to access your assigned ATD (Arista Test Drive) virtual lab environment.
 
-1. Navigate to your assigned ATD lab URL provided by your instructor
+1. Navigate to your assigned ATD Token lab URL provided by your instructor
+
+## Student and Pod Assignment
+{{ read_csv('data/lab_assignment.csv',colalign=("left","center","center","left"), usecols=['Email','Lab Assignment','Student Pod #','ATD Token']) }}
+
 2. Login using the credentials provided for your lab instance
 3. Once logged in, you should see the ATD welcome screen similar to the example below. Click on the "Click Here to Access Topology" button to enter the lab environment.
 

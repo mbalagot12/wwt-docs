@@ -111,7 +111,7 @@ This document provides a guide to configure your Arista switch for home use, inc
 ## Step 5: Login to CV-CUE Launchpad
 
 1. Login to the [Arista Launchpad](https://launchpad.wifi.arista.com/){target="_blank"} for your lab.
-2. Click on the `CV-CUE (CloudVision Wifi)` Tile in the LaunchPad from the Dashboard menu.
+2. Click on the `CV-CUE (CloudVision WiFi)` Tile in the LaunchPad from the Dashboard menu.
 3. Click on `Configure > WiFi` and click on `Add SSID`
 4. Configure your SSID and security settings. Configure the SSID to use the appropriate VLAN (e.g., VLAN 10 for management, VLAN 20 for guest, VLAN 30 for IoT).
 5. Click on `Save` to apply the changes.

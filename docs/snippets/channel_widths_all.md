@@ -49,35 +49,35 @@
     |    1    |  52   |     20MHz     |      4bBm      |
     |    2    |  56   |     20MHz     |      4bBm      |
 
-    |    1    |  60   |     20MHz     |      4bBm      |
-    |    2    |  64   |     20MHz     |      4bBm      |
+    |    3    |  60   |     20MHz     |      4bBm      |
+    |    4    |  64   |     20MHz     |      4bBm      |
 
-    |    1    |  100  |     20MHz     |      4bBm      |
-    |    2    |  105  |     20MHz     |      4bBm      |
+    |    5    |  100  |     20MHz     |      4bBm      |
+    |    6    |  105  |     20MHz     |      4bBm      |
 
-    |    1    |  108  |     20MHz     |      4bBm      |
-    |    2    |  112  |     20MHz     |      4bBm      |
+    |    7    |  108  |     20MHz     |      4bBm      |
+    |    8   |  112  |     20MHz     |      4bBm      |
 
-    |    1    |  116  |     20MHz     |      4bBm      |
-    |    2    |  120  |     20MHz     |      4bBm      |
+    |    9    |  116  |     20MHz     |      4bBm      |
+    |   10    |  120  |     20MHz     |      4bBm      |
 
-    |    1    |  124  |     20MHz     |      4bBm      |
-    |    2    |  128  |     20MHz     |      4bBm      |
+    |    11    |  124  |     20MHz     |      4bBm      |
+    |    12    |  128  |     20MHz     |      4bBm      |
 
-    |    1    |  132  |     20MHz     |      4bBm      |
-    |    2    |  136  |     20MHz     |      4bBm      |
+    |    13    |  132  |     20MHz     |      4bBm      |
+    |    14    |  136  |     20MHz     |      4bBm      |
 
-    |    1    |  140  |     20MHz     |      4bBm      |
-    |    2    |  144  |     20MHz     |      4bBm      |
+    |    16    |  140  |     20MHz     |      4bBm      |
+    |    17    |  144  |     20MHz     |      4bBm      |
 
-    |    1    |  149  |     20MHz     |      4bBm      |
-    |    2    |  153  |     20MHz     |      4bBm      |
+    |    18    |  149  |     20MHz     |      4bBm      |
+    |    19    |  153  |     20MHz     |      4bBm      |
 
-    |    1    |  157  |     20MHz     |      4bBm      |
-    |    2    |  161  |     20MHz     |      4bBm      |
+    |    20    |  157  |     20MHz     |      4bBm      |
+    |    21    |  161  |     20MHz     |      4bBm      |
 
-    |    1    |  165  |     20MHz     |      4bBm      |
-    |    2    |  52   |     20MHz     |      4bBm      |
+    |    22    |  165  |     20MHz     |      4bBm      |
+    |    23    |  52   |     20MHz     |      4bBm      |
 
-    |    1    |  56   |     20MHz     |      4bBm      |
-    |    2    |  60   |     20MHz     |      4bBm      |
+    |    24    |  56   |     20MHz     |      4bBm      |
+    |    25    |  60   |     20MHz     |      4bBm      |

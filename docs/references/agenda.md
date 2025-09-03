@@ -36,7 +36,4 @@ AGNI Lab | C-03: AGNI and Wired EAP-TLS
 11:30 - 11:55 | Labs: Iris - Design, Configure and Price Out Your Network
 Iris Lab | D-00: Iris Design, Configuration and Pricing
 12:00 - 12:50pm | Lunch and Q&A
-1:00 - 3:30 | Competition
-Campus Network Design | Iris Arista campus network design and BOM creation
-Demo | CloudVision, CV-CUE and AGNI
-Awards. Must be present to win.
+1:00 - 2:00 | Till the next time!

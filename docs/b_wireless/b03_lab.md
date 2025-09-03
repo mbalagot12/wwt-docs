@@ -25,7 +25,7 @@ Let's configure a Guest Captive Portal using AGNI for wireless clients. To confi
     ???+ example "Network Settings"
         | Field                    |    Student 1    |    Student 2    |
         | ------------------------ | :-------------: | :-------------: |
-        | Portal Name              | `ATD-##A-GUEST` | `ATD-##B-GUEST` |
+        | Portal Name              | `ATD-##-GUEST` | `ATD-##-GUEST` |
         | Authentication Types     |  Clickthrough   |  Clickthrough   |
         | Re-Authuthenticate Guest |     Always      |     Always      |
         | CAPTCHA                  |    Disabled     |    Disabled     |
@@ -53,13 +53,13 @@ Let's configure a Guest Captive Portal using AGNI for wireless clients. To confi
     ???+ example "Network Settings"
         | Field                                   |    Student 1    |    Student 2    |
         | --------------------------------------- | :-------------: | :-------------: |
-        | Name                                    | `ATD-##A-GUEST` | `ATD-##B-GUEST` |
+        | Name                                    | `ATD-##-GUEST` | `ATD-##-GUEST` |
         | Connection Type                         |    Wireless     |    Wireless     |
-        | SSID                                    | `ATD-##A-GUEST` | `ATD-##B-GUEST` |
+        | SSID                                    | `ATD-##-GUEST` | `ATD-##-GUEST` |
         | Authentication Type                     | Captive Portal  | Captive Portal  |
         | Captive Portal Type                     |    Internal     |    Internal     |
-        | Select Internal Portal                  | `ATD-##A-GUEST` | `ATD-##B-GUEST` |
-        | Internal Role for Portal Authentication | `Portal A Role` | `Portal B Role` |
+        | Select Internal Portal                  | `ATD-##-GUEST` | `ATD-##B-GUEST` |
+        | Internal Role for Portal Authentication | `Portal ## Role` | `Portal ## Role` |
 
     ![Campus Studio](./assets/images/b02/portal/05_portal.png)
 
@@ -92,8 +92,8 @@ Let's configure two role profiles and the SSID settings. This will ensure our gu
     ???+ example "Network Settings"
         | Field             |      Student 1       |      Student 2       |
         | ----------------- | :------------------: | :------------------: |
-        | Role Name         |   `Portal A Role`    |   `Portal B Role`    |
-        | Profile Name      |   `Portal A Role`    |   `Portal B Role`    |
+        | Role Name         |   `Portal ## Role`    |   `Portal ## Role`    |
+        | Profile Name      |   `Portal ## Role`    |   `Portal ## Role`    |
         | Redirection       |       Enabled        |       Enabled        |
         | Redirection Type  |  Static Redirection  |  Static Redirection  |
         | Redirect URL      | `<Copied from AGNI>` | `<Copied from AGNI>` |
@@ -119,7 +119,7 @@ Next, we’ll configure a Guest Role in CV-CUE to assign to Guest Users post aut
     ???+ example "Network Profiles"
         | Field     |   Student 1    |   Student 2    |
         | --------- | :------------: | :------------: |
-        | Role Name | `Guest A Role` | `Guest B Role` |
+        | Role Name | `Guest ## Role` | `Guest ## Role` |
 
     ![Campus Studio](./assets/images/b02/portal/08_portal.png)
 
@@ -164,10 +164,10 @@ Next, we’ll configure a Segment in AGNI to assign the Guest Role Profile post 
     ???+ example "Network Settings"
         | Field               |             Student 1             |             Student 2             |
         | ------------------- | :-------------------------------: | :-------------------------------: |
-        | Name                |          `ATD-##A-GUEST`          |          `ATD-##B-GUEST`          |
-        | Condition           |  `Network:Name is ATD-##A-GUEST`  |  `Network:Name is ATD-##B-GUEST`  |
+        | Name                |          `ATD-##-GUEST`           |          `ATD-##-GUEST`           |
+        | Condition           |  `Network:Name is ATD-##-GUEST`   |  `Network:Name is ATD-##-GUEST`   |
         | Action              | `Arista-WiFi:Assign Role Profile` | `Arista-WiFi:Assign Role Profile` |
-        | Action Role Profile |          `Guest A Role`           |          `Guest B Role`           |
+        | Action Role Profile |          `Guest ## Role`          |          `Guest ## Role`          |
 
     ![Campus Studio](./assets/images/b02/portal/10_portal.png)
 
@@ -195,7 +195,7 @@ Lastly, we’ll configure and enable the Guest Captive Portal SSID and assign th
 
         | Setting   |    Student 1    |    Student 2    |
         | --------- | :-------------: | :-------------: |
-        | SSID Name | `ATD-##A-GUEST` | `ATD-##B-GUEST` |
+        | SSID Name | `ATD-##-GUEST`  | `ATD-##-GUEST`  |
         | SSID Type |     Private     |     Private     |
 
     ![Campus Studio](./assets/images/b02/portal/12_portal.png)
