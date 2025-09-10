@@ -16,6 +16,6 @@ If you're not already logged into CloudVision (CVaaS), navigate to the [Arista L
 
 === "Login Step 2"
 
-    You will see the various tools tied to your tenant, this includes CVP, AGNI (NAC), and CV-CUE for wireless. Click into `AGNI (Beta)` tile to begin this lab.
+    You will see the various tools tied to your tenant, this includes CVP, AGNI (NAC), and CV-CUE for wireless. Click into `CVaas Instance` tile to begin this lab.
 
     ![Launchpad Login](../assets/images/login/login_cv.png)
