@@ -9,7 +9,7 @@ nav:
     #- Lab Guides:
     - Wired Lab Guides:
         - A01 - Explore EOS: a_wired/a01_lab.md
-        - A02 - Provisioning a Campus Fabric: a_wired/a02_atd.md
+        # - A02 - Provisioning a Campus Fabric: a_wired/a02_atd.md
         - A03 - Access Interface Configuration: a_wired/a03_lab.md
         - A04 - Operations, Dashboards, and Events: a_wired/a04_lab.md
     - Wireless Lab Guides:
