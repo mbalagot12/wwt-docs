@@ -369,13 +369,13 @@ We appreciate your desire to get your hands dirty and diving into the Arista cam
 
     [:material-login: Hop into A-02](./a_wired/a02_lab.md){ .md-button .md-button--primary } -->
 
-- :cloudvision: **A02-ATD-Lab: Day 1 Operations - Virtual Lab**
+<!-- - :cloudvision: **A02-ATD-Lab: Day 1 Operations - Virtual Lab**
 
     ---
 
     Experience campus fabric provisioning using Arista Test Drive (ATD) virtual lab environment with CloudVision Studios.
 
-    [:material-login: Hop into A-02-ATD](./a_wired/a02_atd.md){ .md-button .md-button--primary }
+    [:material-login: Hop into A-02-ATD](./a_wired/a02_atd.md){ .md-button .md-button--primary } -->
 
 - :cloudvision: **A03-Lab: Day 2 Operations**
 
