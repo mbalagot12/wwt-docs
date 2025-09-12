@@ -295,7 +295,7 @@ In this lab, you will configure CloudVision to send an email alert to an email a
 
     ![Campus Studio](./assets/images/a03/notify/04_notify_1.png)
 
-6. Type in a `cvaas-alerts@arista.com` in the email address field. This is a shared email address that you can receive emails at during this lab and check the `Send notification when events are resolved` checkbox. Click the `Save` button in the upper right hand side of the screen to save your new receiver.
+6. Type in `cvaas-alerts@arista.com` in the email address field. This is a shared email address that you can receive emails at during this lab and check the `Send notification when events are resolved` checkbox. Click the `Save` button in the upper right hand side of the screen to save your new receiver.
 
     ![Campus Studio](./assets/images/a03/notify/04_notify_2.png)
 
