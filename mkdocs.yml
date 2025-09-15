@@ -33,6 +33,7 @@ nav:
         - Arista @Home:
             - Configuring Arista switches and APs for Home Use: references/arista_home.md
         - Working with Certificates:
+            - RadSec on EOS: references/radsec_on_eos.md
             - Cut-and-Paste Method: references/cut_paste_certs.md
         - Wired:
             - Interface Diagnostics: references/interface_diag.md

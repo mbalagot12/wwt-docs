@@ -94,7 +94,7 @@ The version manager now includes dedicated testing commands:
 ### New Testing Commands:
 
 ```bash
-# Start local server for testing
+# Start local server for testing (auto-detects available port)
 ./scripts/version_manager.sh serve [version]
 
 # Test specific version with guided workflow
@@ -102,6 +102,34 @@ The version manager now includes dedicated testing commands:
 
 # Quick serve current versions
 ./scripts/version_manager.sh serve
+```
+
+### 🔌 **Smart Port Handling**
+
+The version manager now automatically handles port conflicts:
+
+- **Auto-detection**: Checks if port 8000 is already in use
+- **Alternative ports**: Suggests next available port (8001, 8002, etc.)
+- **Custom ports**: Allows you to specify your preferred port
+- **User-friendly**: Prompts for confirmation before using alternative ports
+
+#### **Port Conflict Scenarios:**
+
+```bash
+# Scenario 1: Port 8000 available
+./scripts/version_manager.sh serve
+# → Starts on http://localhost:8000/
+
+# Scenario 2: Port 8000 in use
+./scripts/version_manager.sh serve
+# → "Port 8000 is already in use"
+# → "Found available port: 8001"
+# → "Use port 8001? (Y/n):"
+
+# Scenario 3: Custom port preference
+# → Choose 'n' when prompted
+# → "Enter preferred port number: 3000"
+# → Starts on http://localhost:3000/
 ```
 
 ## 📋 Complete Testing Checklist

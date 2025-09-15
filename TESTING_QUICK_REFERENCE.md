@@ -42,10 +42,11 @@
 
 ## 🔗 Quick URLs
 
-### Local Testing
-- **All versions**: http://localhost:8000/
-- **Current version**: http://localhost:8000/2025.1.STL/
-- **Version selector**: http://localhost:8000/ (dropdown)
+### Local Testing (Smart Port Detection)
+- **All versions**: http://localhost:PORT/ (auto-detects available port)
+- **Current version**: http://localhost:PORT/2025.1.STL/
+- **Version selector**: http://localhost:PORT/ (dropdown)
+- **Default port**: 8000 (automatically finds alternatives if in use)
 
 ### GitHub Pages
 - **All versions**: https://`<username>`.github.io/wwt-docs/
