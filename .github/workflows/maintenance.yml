@@ -1,0 +1,274 @@
+# Scheduled Maintenance and Health Checks
+name: Maintenance & Health Checks
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'Type of check to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - health
+          - links
+          - dependencies
+          - cleanup
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'health' || github.event_name == 'schedule' }}
+    
+    steps:
+      - name: Check GitHub Pages availability
+        run: |
+          echo "🌐 Checking GitHub Pages availability..."
+          
+          SITE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$SITE_URL")
+          
+          if [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ GitHub Pages is accessible (HTTP $HTTP_CODE)"
+          else
+            echo "❌ GitHub Pages returned HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Check nginx server availability
+        run: |
+          echo "🖥️ Checking nginx server availability..."
+          
+          NGINX_URL="http://wwt-acws.duckdns.org/"
+          
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$NGINX_URL" || echo "000")
+          
+          if [[ "$HTTP_CODE" == "200" ]]; then
+            echo "✅ Nginx server is accessible (HTTP $HTTP_CODE)"
+          else
+            echo "⚠️ Nginx server returned HTTP $HTTP_CODE or is unreachable"
+          fi
+
+      - name: Check version consistency
+        run: |
+          echo "🔄 Checking version consistency between GitHub Pages and nginx..."
+          
+          # This is a basic check - in a real scenario you might compare content hashes
+          echo "Both sites should serve the same content from gh-pages branch"
+          echo "Manual verification recommended if issues are suspected"
+
+  link-check:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'links' || github.event_name == 'schedule' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV and dependencies
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          uv venv .venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+          echo "PATH=.venv/bin:$PATH" >> $GITHUB_ENV
+          uv pip install -r requirements.txt
+
+      - name: Build site for link checking
+        run: |
+          mkdocs build
+
+      - name: Check external links
+        run: |
+          echo "🔗 Checking external links..."
+          
+          # Extract external links from built HTML
+          find site -name "*.html" -exec grep -ho 'https\?://[^"]*' {} \; | sort -u > external_links.txt
+          
+          echo "Found $(wc -l < external_links.txt) unique external links"
+          
+          # Check a sample of external links (to avoid rate limiting)
+          head -20 external_links.txt | while read url; do
+            if [[ -n "$url" ]]; then
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$url" || echo "000")
+              if [[ "$HTTP_CODE" =~ ^[23] ]]; then
+                echo "✅ $url (HTTP $HTTP_CODE)"
+              else
+                echo "⚠️ $url (HTTP $HTTP_CODE)"
+              fi
+            fi
+          done
+
+      - name: Check ATD links specifically
+        run: |
+          echo "🎯 Checking ATD TestDrive links..."
+          
+          if [[ -f "data/lab_assignment.csv" ]]; then
+            # Extract ATD links from CSV
+            grep -o 'https://testdrive\.arista\.com[^"]*' data/lab_assignment.csv | head -5 | while read url; do
+              if [[ -n "$url" ]]; then
+                HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$url" || echo "000")
+                if [[ "$HTTP_CODE" =~ ^[23] ]]; then
+                  echo "✅ ATD link accessible (HTTP $HTTP_CODE)"
+                else
+                  echo "⚠️ ATD link returned HTTP $HTTP_CODE"
+                fi
+              fi
+            done
+          fi
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'dependencies' || github.event_name == 'schedule' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for dependency updates
+        run: |
+          echo "📦 Checking for dependency updates..."
+          
+          if [[ -f "requirements.txt" ]]; then
+            echo "Current requirements.txt:"
+            cat requirements.txt
+            echo ""
+            
+            # Check for known security vulnerabilities (basic check)
+            echo "🔍 Checking for known vulnerable packages..."
+            
+            # This is a simplified check - in production, use tools like safety or snyk
+            if grep -i "django.*[<>=].*1\." requirements.txt; then
+              echo "⚠️ Found potentially vulnerable Django version"
+            fi
+            
+            if grep -i "requests.*[<>=].*2\.1[0-9]\." requirements.txt; then
+              echo "⚠️ Found potentially vulnerable requests version"
+            fi
+            
+            echo "✅ Basic dependency check completed"
+          fi
+
+      - name: Check Python version compatibility
+        run: |
+          echo "🐍 Checking Python version compatibility..."
+          
+          PYTHON_VERSION=$(python3 --version)
+          echo "Current Python version: $PYTHON_VERSION"
+          
+          # Check if we're using a supported Python version
+          if python3 -c "import sys; exit(0 if sys.version_info >= (3, 8) else 1)"; then
+            echo "✅ Python version is supported"
+          else
+            echo "⚠️ Python version may be outdated"
+          fi
+
+  cleanup:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.check_type == 'all' || github.event.inputs.check_type == 'cleanup' || github.event_name == 'schedule' }}
+    
+    steps:
+      - name: Cleanup old workflow runs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: workflows } = await github.rest.actions.listRepoWorkflows({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            for (const workflow of workflows.workflows) {
+              const { data: runs } = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: workflow.id,
+                status: 'completed',
+                per_page: 100,
+              });
+
+              // Keep the 50 most recent runs, delete older ones
+              const runsToDelete = runs.workflow_runs.slice(50);
+              
+              for (const run of runsToDelete) {
+                try {
+                  await github.rest.actions.deleteWorkflowRun({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    run_id: run.id,
+                  });
+                  console.log(`Deleted workflow run ${run.id}`);
+                } catch (error) {
+                  console.log(`Failed to delete workflow run ${run.id}: ${error.message}`);
+                }
+              }
+            }
+
+      - name: Report cleanup results
+        run: |
+          echo "🧹 Cleanup completed"
+          echo "Old workflow runs have been removed to save storage space"
+
+  generate-report:
+    needs: [health-check, link-check, dependency-check, cleanup]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Generate maintenance report
+        run: |
+          echo "## 🔧 Maintenance Report - $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 🌐 Health Check Results" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ needs.health-check.result }}" == "success" ]]; then
+            echo "- ✅ GitHub Pages: Accessible" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Nginx Server: Checked" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Health check failed or skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 🔗 Link Check Results" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ needs.link-check.result }}" == "success" ]]; then
+            echo "- ✅ External links: Verified" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ ATD links: Checked" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Link check failed or skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 📦 Dependency Check Results" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ needs.dependency-check.result }}" == "success" ]]; then
+            echo "- ✅ Dependencies: Reviewed" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Python version: Compatible" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Dependency check failed or skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 🧹 Cleanup Results" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ needs.cleanup.result }}" == "success" ]]; then
+            echo "- ✅ Old workflow runs: Cleaned up" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Cleanup failed or skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 📋 Next Scheduled Check" >> $GITHUB_STEP_SUMMARY
+          echo "- **Daily at 2:00 AM UTC**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Manual trigger available**" >> $GITHUB_STEP_SUMMARY

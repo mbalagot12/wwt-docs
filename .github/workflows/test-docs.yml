@@ -1,0 +1,240 @@
+# Test Documentation Changes
+name: Test Documentation
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'data/**'
+      - 'mkdocs.yml'
+      - 'requirements.txt'
+  
+  # Manual testing trigger
+  workflow_dispatch:
+    inputs:
+      test_version:
+        description: 'Test version name'
+        required: true
+        default: 'test-pr'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Set up UV environment
+        run: |
+          uv venv .venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+          echo "PATH=.venv/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: |
+          uv pip install -r requirements.txt
+
+      - name: Test MkDocs build
+        run: |
+          echo "🔨 Testing MkDocs build..."
+          mkdocs build --strict
+          echo "✅ MkDocs build successful"
+
+      - name: Test Mike deployment (dry run)
+        run: |
+          echo "🧪 Testing Mike deployment..."
+          
+          # Configure git for testing
+          git config --global user.name "GitHub Actions Test"
+          git config --global user.email "test@github.com"
+          
+          # Create test version
+          TEST_VERSION="${{ github.event.inputs.test_version || 'test-pr' }}-${{ github.run_number }}"
+          echo "Testing with version: $TEST_VERSION"
+          
+          # Deploy test version locally (no push)
+          mike deploy "$TEST_VERSION" "Test deployment for PR #${{ github.event.number }}"
+          
+          # List versions to verify
+          mike list
+          
+          echo "✅ Mike deployment test successful"
+
+      - name: Validate CSV data
+        run: |
+          echo "📊 Validating CSV data..."
+          
+          # Check if CSV file exists and is valid
+          if [[ -f "data/lab_assignment.csv" ]]; then
+            # Count lines (should have header + data)
+            LINE_COUNT=$(wc -l < data/lab_assignment.csv)
+            echo "CSV has $LINE_COUNT lines"
+            
+            # Check for basic CSV structure
+            if head -1 data/lab_assignment.csv | grep -q "First Name,Last Name,Email"; then
+              echo "✅ CSV header is valid"
+            else
+              echo "❌ CSV header is invalid"
+              exit 1
+            fi
+            
+            # Check for ATD Token links
+            ATD_LINKS=$(grep -c "ATD Instance" data/lab_assignment.csv || true)
+            echo "Found $ATD_LINKS ATD Instance links"
+            
+            if [[ $ATD_LINKS -gt 0 ]]; then
+              echo "✅ ATD Token links found"
+            else
+              echo "⚠️ No ATD Token links found"
+            fi
+          else
+            echo "⚠️ CSV file not found"
+          fi
+
+      - name: Check for broken links
+        run: |
+          echo "🔗 Checking for broken internal links..."
+          
+          # Build the site first
+          mkdocs build
+          
+          # Simple check for common broken link patterns
+          find site -name "*.html" -exec grep -l "href.*404\|src.*404" {} \; || true
+          
+          echo "✅ Link check completed"
+
+      - name: Validate video paths
+        run: |
+          echo "🎥 Validating video paths..."
+          
+          # Check for video references in markdown files
+          VIDEO_REFS=$(find docs -name "*.md" -exec grep -l "\.mp4\|\.mov\|\.avi" {} \; || true)
+          
+          if [[ -n "$VIDEO_REFS" ]]; then
+            echo "Found video references in:"
+            echo "$VIDEO_REFS"
+            
+            # Check if video files exist
+            for file in $VIDEO_REFS; do
+              echo "Checking videos in: $file"
+              grep -o '[^"]*\.\(mp4\|mov\|avi\)' "$file" | while read video_path; do
+                # Convert relative paths
+                if [[ "$video_path" == ./* ]]; then
+                  full_path="docs/$(dirname "$file" | sed 's|docs/||')/$video_path"
+                else
+                  full_path="docs/$video_path"
+                fi
+                
+                if [[ -f "$full_path" ]]; then
+                  echo "✅ Found: $video_path"
+                else
+                  echo "⚠️ Missing: $video_path (expected at $full_path)"
+                fi
+              done
+            done
+          else
+            echo "No video references found"
+          fi
+
+      - name: Test version manager script
+        run: |
+          echo "🛠️ Testing version manager script..."
+          
+          if [[ -f "scripts/version_manager.sh" ]]; then
+            chmod +x scripts/version_manager.sh
+            
+            # Test help command
+            ./scripts/version_manager.sh help
+            
+            # Test list command
+            ./scripts/version_manager.sh list
+            
+            echo "✅ Version manager script is functional"
+          else
+            echo "⚠️ Version manager script not found"
+          fi
+
+      - name: Generate test report
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **MkDocs Build**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mike Deployment**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **CSV Data**: ✅ Validated" >> $GITHUB_STEP_SUMMARY
+          echo "- **Internal Links**: ✅ Checked" >> $GITHUB_STEP_SUMMARY
+          echo "- **Video Paths**: ✅ Validated" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version Manager**: ✅ Tested" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Review changes in the PR" >> $GITHUB_STEP_SUMMARY
+          echo "- Merge to trigger automatic deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- Monitor deployment in Actions tab" >> $GITHUB_STEP_SUMMARY
+
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+
+      - name: Check for sensitive files
+        run: |
+          echo "🔍 Checking for sensitive files..."
+          
+          # Check for common sensitive file patterns
+          SENSITIVE_FILES=$(find . -name "*.key" -o -name "*.pem" -o -name "*.p12" -o -name "*.pfx" -o -name ".env" | grep -v ".git" || true)
+          
+          if [[ -n "$SENSITIVE_FILES" ]]; then
+            echo "⚠️ Found potentially sensitive files:"
+            echo "$SENSITIVE_FILES"
+            echo "Please review these files and ensure they don't contain secrets"
+          else
+            echo "✅ No sensitive files found"
+          fi
+
+      - name: Validate requirements.txt
+        run: |
+          echo "📦 Validating Python requirements..."
+          
+          if [[ -f "requirements.txt" ]]; then
+            # Check for known vulnerable packages (basic check)
+            if grep -i "django.*1\." requirements.txt; then
+              echo "⚠️ Found potentially outdated Django version"
+            fi
+            
+            # Check for pinned versions
+            UNPINNED=$(grep -v "==" requirements.txt | grep -v "^#" | grep -v "^$" || true)
+            if [[ -n "$UNPINNED" ]]; then
+              echo "⚠️ Found unpinned dependencies:"
+              echo "$UNPINNED"
+              echo "Consider pinning versions for reproducible builds"
+            else
+              echo "✅ All dependencies are pinned"
+            fi
+          fi

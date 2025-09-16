@@ -1,0 +1,295 @@
+# Deploy to Nginx Server
+name: Deploy to Nginx Server
+
+on:
+  workflow_run:
+    workflows: ["Deploy Documentation"]
+    types:
+      - completed
+    branches: [main]
+
+  # Manual trigger for nginx deployment
+  workflow_dispatch:
+    inputs:
+      server_host:
+        description: 'Server hostname or IP'
+        required: true
+        default: 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com'
+      force_update:
+        description: 'Force update even if no changes'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Dry run (test without deploying)'
+        type: boolean
+        default: false
+
+env:
+  SERVER_USER: ubuntu
+  SERVER_PATH: /var/www/wwt-acws.duckdns.org
+  NGINX_SERVICE: nginx
+
+jobs:
+  deploy-to-nginx:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.NGINX_SERVER_SSH_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
+      - name: Check server connectivity
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🔗 Testing connection to $SERVER_HOST..."
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "echo 'Connection successful'"
+
+      - name: Backup current site
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "💾 Creating backup of current site..."
+
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
+            if [ -d '${{ env.SERVER_PATH }}' ]; then
+              sudo cp -r '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.backup.$(date +%Y%m%d_%H%M%S)'
+              echo '✅ Backup created'
+            else
+              echo '⚠️ No existing site to backup'
+            fi
+          "
+
+      - name: Dry run - Backup simulation
+        if: github.event.inputs.dry_run == 'true'
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🧪 DRY RUN: Would create backup of current site..."
+          echo "Command: sudo cp -r '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.backup.$(date +%Y%m%d_%H%M%S)'"
+
+      - name: Update site from GitHub
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🔄 Updating site from GitHub..."
+
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
+            # Navigate to site directory
+            cd '${{ env.SERVER_PATH }}'
+
+            # Check if it's a git repository
+            if [ -d '.git' ]; then
+              echo '📥 Pulling latest changes from gh-pages...'
+              sudo git fetch origin
+              sudo git reset --hard origin/gh-pages
+              sudo git clean -fd
+            else
+              echo '🆕 Cloning repository...'
+              sudo rm -rf '${{ env.SERVER_PATH }}'
+              sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git '${{ env.SERVER_PATH }}'
+            fi
+
+            echo '✅ Site updated from GitHub'
+          "
+
+      - name: Dry run - Update simulation
+        if: github.event.inputs.dry_run == 'true'
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🧪 DRY RUN: Would update site from GitHub..."
+
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
+            cd '${{ env.SERVER_PATH }}'
+
+            if [ -d '.git' ]; then
+              echo '🧪 Would run: git fetch origin && git reset --hard origin/gh-pages'
+              echo 'Current branch:' \$(git branch --show-current)
+              echo 'Current commit:' \$(git log -1 --oneline)
+              echo 'Remote status:' \$(git status -uno)
+            else
+              echo '🧪 Would clone: git clone -b gh-pages https://github.com/${{ github.repository }}.git'
+            fi
+          "
+
+      - name: Set proper permissions
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🔐 Setting proper permissions..."
+
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
+            sudo chown -R www-data:www-data '${{ env.SERVER_PATH }}'
+            sudo chmod -R 755 '${{ env.SERVER_PATH }}'
+            sudo find '${{ env.SERVER_PATH }}' -type f -exec chmod 644 {} \;
+            echo '✅ Permissions set'
+          "
+
+      - name: Dry run - Permissions simulation
+        if: github.event.inputs.dry_run == 'true'
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🧪 DRY RUN: Would set proper permissions..."
+          echo "Commands:"
+          echo "  sudo chown -R www-data:www-data '${{ env.SERVER_PATH }}'"
+          echo "  sudo chmod -R 755 '${{ env.SERVER_PATH }}'"
+          echo "  sudo find '${{ env.SERVER_PATH }}' -type f -exec chmod 644 {} \;"
+
+      - name: Validate nginx configuration
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🔧 Validating nginx configuration..."
+          
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
+            sudo nginx -t
+            if [ \$? -eq 0 ]; then
+              echo '✅ Nginx configuration is valid'
+            else
+              echo '❌ Nginx configuration has errors'
+              exit 1
+            fi
+          "
+
+      - name: Reload nginx
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🔄 Reloading nginx..."
+
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
+            sudo systemctl reload ${{ env.NGINX_SERVICE }}
+            sudo systemctl status ${{ env.NGINX_SERVICE }} --no-pager -l
+            echo '✅ Nginx reloaded'
+          "
+
+      - name: Dry run - Nginx reload simulation
+        if: github.event.inputs.dry_run == 'true'
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🧪 DRY RUN: Would reload nginx..."
+          echo "Command: sudo systemctl reload ${{ env.NGINX_SERVICE }}"
+
+          # Still check nginx status in dry run
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
+            sudo systemctl status ${{ env.NGINX_SERVICE }} --no-pager -l
+          "
+
+      - name: Test site accessibility
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🌐 Testing site accessibility..."
+          
+          # Test local access from server
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
+            # Test local nginx response
+            HTTP_CODE=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)
+            if [ \"\$HTTP_CODE\" = '200' ]; then
+              echo '✅ Local site is accessible (HTTP \$HTTP_CODE)'
+            else
+              echo '⚠️ Local site returned HTTP \$HTTP_CODE'
+            fi
+            
+            # Test if index.html exists
+            if [ -f '${{ env.SERVER_PATH }}/index.html' ]; then
+              echo '✅ index.html found'
+            else
+              echo '❌ index.html not found'
+              ls -la '${{ env.SERVER_PATH }}/'
+            fi
+          "
+
+      - name: Update deployment status
+        run: |
+          IS_DRY_RUN="${{ github.event.inputs.dry_run }}"
+
+          if [[ "$IS_DRY_RUN" == "true" ]]; then
+            echo "## 🧪 Nginx Dry Run Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Mode**: DRY RUN (No actual deployment)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Server**: ${{ github.event.inputs.server_host || 'mb-acws2' }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Path**: ${{ env.SERVER_PATH }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status**: ✅ Dry Run Completed" >> $GITHUB_STEP_SUMMARY
+            echo "- **Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🧪 What Would Happen" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Server connectivity verified" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Would create site backup" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Would update content from gh-pages" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Would configure permissions" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Nginx configuration validated" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Would reload nginx service" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Would test site accessibility" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🚀 To Deploy for Real" >> $GITHUB_STEP_SUMMARY
+            echo "Run the workflow again with 'Dry run' unchecked" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## 🚀 Nginx Deployment Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Server**: ${{ github.event.inputs.server_host || 'mb-acws2' }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Path**: ${{ env.SERVER_PATH }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status**: ✅ Deployed Successfully" >> $GITHUB_STEP_SUMMARY
+            echo "- **Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🌐 Site URLs" >> $GITHUB_STEP_SUMMARY
+            echo "- **Main Site**: http://wwt-acws.duckdns.org/" >> $GITHUB_STEP_SUMMARY
+            echo "- **GitHub Pages**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📋 Deployment Steps Completed" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Server connectivity verified" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Site backup created" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Content updated from gh-pages" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Permissions configured" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Nginx configuration validated" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Nginx service reloaded" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Site accessibility tested" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  cleanup-old-backups:
+    needs: deploy-to-nginx
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.NGINX_SERVER_SSH_KEY }}
+
+      - name: Cleanup old backups
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          echo "🧹 Cleaning up old backups..."
+          
+          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
+            # Keep only the 5 most recent backups
+            cd /var/www/
+            sudo find . -name 'wwt-acws.duckdns.org.backup.*' -type d | sort -r | tail -n +6 | sudo xargs rm -rf
+            
+            # List remaining backups
+            echo 'Remaining backups:'
+            sudo find . -name 'wwt-acws.duckdns.org.backup.*' -type d | sort
+          "
+
+  notify-deployment:
+    needs: [deploy-to-nginx, cleanup-old-backups]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Notify deployment result
+        run: |
+          if [[ "${{ needs.deploy-to-nginx.result }}" == "success" ]]; then
+            echo "✅ Nginx deployment completed successfully!"
+            echo "🌐 Site is now live at: http://wwt-acws.duckdns.org/"
+          else
+            echo "❌ Nginx deployment failed!"
+            echo "Please check the deployment logs for details."
+          fi

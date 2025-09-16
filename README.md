@@ -14,7 +14,10 @@ Comprehensive documentation for the Arista Campus Workshop, featuring advanced v
 - 🔌 **Port Handling**: Automatic port conflict resolution
 - 🔗 **Enhanced Links**: Markdown ATD links that open in new tabs
 - 🛡️ **Version Protection**: Safeguards against accidental overwrites
-- 🚀 **One-Command Deployment**: Streamlined GitHub sync
+- 🚀 **CI/CD Pipeline**: Fully automated deployment and testing
+- 🧪 **Dry Run Testing**: Safe testing before actual deployment
+- 🖥️ **Multi-Platform**: GitHub Pages + Nginx server deployment
+- 📊 **Health Monitoring**: Automated maintenance and monitoring
 - 📱 **Responsive Design**: Mobile-optimized documentation
 
 ## 🚀 Quick Start
@@ -52,11 +55,45 @@ uv pip install -r requirements.txt
 
 ### 3. Authentication Setup
 
+Choose your preferred authentication method:
+
+#### Option A: Secure Token Setup (Recommended for CI/CD)
+
 ```bash
-# Authenticate with GitHub CLI (recommended)
+# Run secure token setup script
+./setup_github_token.sh
+
+# Follow prompts to enter your Personal Access Token securely
+# Token input is hidden and validated automatically
+```
+
+#### Option B: GitHub CLI Interactive
+
+```bash
+# Authenticate with GitHub CLI (browser-based)
 gh auth login
 
 # Follow prompts to authenticate via web browser
+```
+
+#### Option C: Comprehensive CI/CD Setup
+
+```bash
+# Complete CI/CD pipeline setup with authentication
+./setup_cicd.sh
+
+# Choose authentication method when prompted
+# Includes dry-run testing and validation
+```
+
+### 4. Validation
+
+```bash
+# Validate your authentication setup
+./validate_token.sh
+
+# Run comprehensive dry-run tests
+./test_dry_run.sh
 ```
 
 ## 🛠️ Version Management System
@@ -203,6 +240,71 @@ mike deploy 2025.2.STL  # ✅ Allowed - new version
 mike deploy 2025.1.STL-hotfix  # ✅ Allowed - different name
 ```
 
+## 🚀 CI/CD Pipeline
+
+### Automated Deployment
+
+The project features a comprehensive CI/CD pipeline that automatically:
+
+- ✅ **Detects changes** in documentation, data, or configuration
+- ✅ **Runs comprehensive tests** on pull requests
+- ✅ **Deploys new versions** with Mike versioning
+- ✅ **Updates GitHub Pages** automatically
+- ✅ **Syncs with nginx server** for live site updates
+- ✅ **Performs health checks** and maintenance
+
+### Pipeline Triggers
+
+```bash
+# Automatic triggers:
+git push origin main           # → Auto-deploy if docs changed
+git tag v2025.2.STL           # → Create release version
+# Pull request                 # → Run tests
+
+# Manual triggers:
+# GitHub Actions → Deploy Documentation → Run workflow
+# GitHub Actions → Deploy to Nginx Server → Run workflow
+
+# Dry run testing:
+# GitHub Actions → Deploy Documentation → Check "Dry run" → Run workflow
+# GitHub Actions → Deploy to Nginx Server → Check "Dry run" → Run workflow
+```
+
+### 🧪 Dry Run Testing
+
+Test your deployments safely before making actual changes:
+
+```bash
+# Test locally with version manager
+./scripts/version_manager.sh deploy 2025.2.STL "Test version" --dry-run
+
+# Run comprehensive dry run tests
+./test_dry_run.sh
+
+# Test via GitHub Actions:
+# 1. Go to Actions tab
+# 2. Select workflow (Deploy Documentation or Deploy to Nginx Server)
+# 3. Click "Run workflow"
+# 4. Check "Dry run" checkbox
+# 5. Fill in other details and run
+```
+
+### Setup CI/CD Pipeline
+
+```bash
+# Test your existing nginx server connection
+./test_nginx_connection.sh
+
+# One-command CI/CD setup (uses your existing mb-partner-kp.pem)
+./setup_cicd.sh
+
+# Manual setup steps (if needed):
+# 1. Use existing SSH key: /Users/miguelbalagot/Documents/MyKeyPairs/mb-partner-kp.pem
+# 2. Add NGINX_SERVER_SSH_KEY to GitHub Secrets
+# 3. Configure nginx server (mb-acws2)
+# 4. Test pipeline with a small change
+```
+
 ## 🚀 One-Command Operations
 
 ### Complete Version Release
@@ -298,6 +400,8 @@ git config --global credential.helper cache
 
 ### Comprehensive Guides
 
+- **[CI_CD_PIPELINE.md](CI_CD_PIPELINE.md)**: Complete CI/CD pipeline documentation
+- **[NGINX_DEPLOYMENT_GUIDE.md](NGINX_DEPLOYMENT_GUIDE.md)**: Nginx server deployment guide
 - **[VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md)**: Complete version strategy
 - **[SYNC_WORKFLOW.md](SYNC_WORKFLOW.md)**: GitHub synchronization workflows
 - **[TESTING_WORKFLOW.md](TESTING_WORKFLOW.md)**: Detailed testing procedures
@@ -330,12 +434,14 @@ git config --global credential.helper cache
 
 ### Recent Enhancements (2025)
 
+- ✅ **CI/CD Pipeline**: Fully automated deployment and testing workflows
+- ✅ **Multi-Platform Deployment**: GitHub Pages + Nginx server automation
 - ✅ **Version Management System**: Protected versioning with Mike
 - ✅ **Smart Testing Workflows**: Local and GitHub Pages testing
 - ✅ **Port Conflict Resolution**: Automatic port handling
 - ✅ **Enhanced ATD Integration**: Markdown links with new tab opening
+- ✅ **Health Monitoring**: Automated maintenance and monitoring
 - ✅ **Comprehensive Documentation**: Complete setup and usage guides
-- ✅ **GitHub Sync Automation**: One-command deployment workflows
 
 ---
 
@@ -344,15 +450,25 @@ git config --global credential.helper cache
 ```bash
 # Setup and authentication
 gh auth login
-./setup_sync.sh
+./setup_cicd.sh                    # Complete CI/CD pipeline setup
+./setup_sync.sh                    # Version management setup
 
 # Daily development
 ./scripts/version_manager.sh serve
 ./scripts/version_manager.sh status
 
-# Version deployment
+# Dry run testing (RECOMMENDED FIRST)
+./test_dry_run.sh                  # Comprehensive dry run tests
+./scripts/version_manager.sh deploy <version> "Description" --dry-run
+
+# Version deployment (manual)
 ./scripts/version_manager.sh deploy <version> "Description" --push
 ./scripts/version_manager.sh set-default <version> --push
+
+# CI/CD operations
+git push origin main               # → Triggers automatic deployment
+gh workflow run deploy-docs.yml   # → Manual deployment trigger
+gh run list                       # → View workflow status
 
 # Testing
 ./scripts/version_manager.sh test <version>
@@ -363,4 +479,4 @@ gh auth login
 ./scripts/version_manager.sh sync
 ```
 
-**🚀 Ready to start? Run `./setup_sync.sh` to get everything configured!**
+**🚀 Ready to start? Run `./setup_cicd.sh` to configure the complete CI/CD pipeline!**
