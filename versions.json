@@ -1,5 +1,12 @@
 [
   {
+    "version": "2025.09.53de672",
+    "title": "2025.09.53de672",
+    "aliases": [
+      "Auto-deployment 2025-09-16 12:06"
+    ]
+  },
+  {
     "version": "2025.09.8f1a1f5",
     "title": "2025.09.8f1a1f5",
     "aliases": [
@@ -10,10 +17,10 @@
     "version": "2025.1.STL",
     "title": "2025.1.STL",
     "aliases": [
-      "push",
-      "GitHub Pages setup",
       "latest",
-      "Diagnostic deployment"
+      "GitHub Pages setup",
+      "Diagnostic deployment",
+      "push"
     ]
   }
 ]
