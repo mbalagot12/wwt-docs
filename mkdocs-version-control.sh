@@ -1,30 +1,41 @@
-# Deploy version 2025.1
-mike deploy --push --update-aliases 2025.1.STL latest
+#!/bin/bash
+# MkDocs Version Control Script
+# Useful commands for managing documentation versions with Mike
 
-# Deploy additional versions
+# Current active version
+CURRENT_VERSION="2025.1.STL"
+
+echo "MkDocs Version Control Helper"
+echo "============================="
+
+# Uncomment the command you want to run:
+
+# 1. Deploy current version and set as latest
+# mike deploy --push --update-aliases $CURRENT_VERSION latest
+
+# 2. Deploy additional versions (example)
 # mike deploy --push --update-aliases 2025.2.NYC
 
-# Set default version
-mike set-default --push latest
+# 3. Set default version
+# mike set-default --push latest
 
-# Delete a version
-# mike delete 2025.1.STL --push
+# 4. Update existing version with latest changes
+# mike deploy --push $CURRENT_VERSION
 
-# Delete all versions
-# mike delete --all --push
+# 5. List all versions
+mike list
 
-# Serve the site locally for testing
+# 6. Serve locally for testing
 # mike serve -a 0.0.0.0:8000
 
-# Build the MkDocs site
+# 7. Build MkDocs site (without versioning)
 # mkdocs build
 
-# Deploy the MkDocs site
-# mkdocs gh-deploy --force
+# 8. Delete a specific version (CAREFUL!)
+# mike delete $CURRENT_VERSION --push
 
-# update the site with the latest changes
-mike deploy --push 2025.1.STL
+# 9. Delete all versions (VERY CAREFUL!)
+# mike delete --all --push
 
-
-# List all versions
-mike list
+echo ""
+echo "Edit this script to uncomment the commands you want to run."
