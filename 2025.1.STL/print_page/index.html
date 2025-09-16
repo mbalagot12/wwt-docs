@@ -1167,6 +1167,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../references/radsec_on_eos/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RadSec on EOS
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../references/cut_paste_certs/" class="md-nav__link">
         
   
@@ -1741,9 +1762,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#references-radsec_on_eos" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.5.1 RadSec on EOS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#references-cut_paste_certs" class="md-nav__link">
     <span class="md-ellipsis">
-      5.5.1 Cut-and-Paste Method
+      5.5.2 Cut-and-Paste Method
     </span>
   </a>
   
@@ -7598,7 +7628,7 @@ We are using <code>Bridged</code> mode in this lab. You could use the following 
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../references/assets/images/agni/agni_generate_switch_crt.png" data-desc-position="bottom"><img alt="AGNI Switch Certificate" src="../references/assets/images/agni/agni_generate_switch_crt.png"></a></p>
 </li>
 <li>
-<p>Click Generate Certificate. A certificate <code>pod00-leaf1a.pem</code> will be generated and downloaded. Rename this file to <code>switch.pem</code></p>
+<p>Click Generate Certificate. A certificate <code>pod00-leaf1.pem</code> will be generated and downloaded. Rename this file to <code>switch.pem</code></p>
 </li>
 <li>
 <p>Go to RadSec Setting in the Navigator under Administration section to download the CA certificate.</p>
@@ -9136,7 +9166,139 @@ Connect the wireless access point to the leaf layer using the <code>Connect</cod
                     <section class='print-page md-section' id='section-5-5' heading-number='5.5'>
                         <h1>Working with Certificates<a class='headerlink' href='#section-5-5' title='Permanent link'></a>
                         </h1>
-                    <section class="print-page" id="references-cut_paste_certs" heading-number="5.5.1"><html><head>
+                    <section class="print-page" id="references-radsec_on_eos" heading-number="5.5.1"><html><head>
+        <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            remove_material_navigation();remove_mkdocs_theme_navigation();generate_toc();
+        })
+        </script>
+        </head><body><h1 id="configuring-radsec-on-eos">Configuring RadSec on EOS<a class="headerlink" href="#references-radsec_on_eos-configuring-radsec-on-eos" title="Permanent link">¶</a></h1>
+<p>Arista Switches can form a RadSec tunnel using SSL encryption with AGNI. RadSec is a protocol that supports RADIUS over TCP and TLS. For mutual authentication it is required to install a client certificate with corresponding private key as well as your AGNI CA certificate. The steps below assumes the use of AGNI's internal PKI.</p>
+<p>Follow the steps to create, upload and establish the RadSec tunnel.</p>
+<ol>
+<li>Generate private key and CSR</li>
+<li>Generate client certificate for the Switch in AGNI. </li>
+<li>Upload the Certificate to the Switch.</li>
+<li>Configure an SSL profile and and RadSec profile  </li>
+</ol>
+<h2 id="references-radsec_on_eos-agni-login">AGNI Login<a class="headerlink" href="#references-radsec_on_eos-agni-login" title="Permanent link">¶</a></h2>
+<p>If you're not already logged into AGNI, navigate to the <a href="https://launchpad.wifi.arista.com/" target="_blank">Arista Launchpad</a> for your lab.</p>
+<p><a class="md-button md-button--primary" href="https://launchpad.wifi.arista.com/" target="_blank"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m13.13 22.19-1.63-3.83c1.57-.58 3.04-1.36 4.4-2.27l-2.77 6.1M5.64 12.5l-3.83-1.63 6.1-2.77C7 9.46 6.22 10.93 5.64 12.5M19.22 4c.28 0 .53 0 .74.05.17 1.39-.02 4.25-3.3 7.53-1.7 1.71-3.73 3.02-6.01 3.89l-2.15-2.1c.92-2.31 2.23-4.34 3.92-6.03C15.18 4.58 17.64 4 19.22 4m0-2c-1.98 0-4.98.69-8.22 3.93-2.19 2.19-3.5 4.6-4.35 6.71-.28.75-.09 1.57.46 2.13l2.13 2.12c.38.38.89.61 1.42.61.23 0 .47-.06.7-.15A19.1 19.1 0 0 0 18.07 13c5.66-5.66 3.54-10.61 3.54-10.61S20.7 2 19.22 2m-4.68 7.46c-.78-.78-.78-2.05 0-2.83s2.05-.78 2.83 0c.77.78.78 2.05 0 2.83-.78.78-2.05.78-2.83 0m-5.66 7.07-1.41-1.41 1.41 1.41M6.24 22l3.64-3.64c-.34-.09-.67-.24-.97-.45L4.83 22h1.41M2 22h1.41l4.77-4.76-1.42-1.41L2 20.59V22m0-2.83 4.09-4.08c-.21-.3-.36-.62-.45-.97L2 17.76v1.41Z"></path></svg></span> Open Launchpad</a></p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="references-radsec_on_eos-__tabbed_1_1" name="references-radsec_on_eos-__tabbed_1" type="radio"><input id="references-radsec_on_eos-__tabbed_1_2" name="references-radsec_on_eos-__tabbed_1" type="radio"><div class="tabbed-labels"><label for="references-radsec_on_eos-__tabbed_1_1">Login Step 1</label><label for="references-radsec_on_eos-__tabbed_1_2">Login Step 2</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Provide your assigned lab/pod email address and password and clieck <code>Sign In</code></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../assets/images/login/01_launchpad_login.png" data-desc-position="bottom"><img alt="Launchpad Login" src="../assets/images/login/01_launchpad_login.png"></a></p>
+</div>
+<div class="tabbed-block">
+<p>You will see the various tools tied to your tenant, this includes CVP, AGNI (NAC), and CV-CUE for wireless. Click into <code>AGNI (Beta)</code> tile to begin this lab.</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../assets/images/login/login_agni.png" data-desc-position="bottom"><img alt="Launchpad Login" src="../assets/images/login/login_agni.png"></a></p>
+</div>
+</div>
+</div>
+<h2 id="references-radsec_on_eos-configuration-steps">Configuration Steps<a class="headerlink" href="#references-radsec_on_eos-configuration-steps" title="Permanent link">¶</a></h2>
+<ol>
+<li>
+<p>Generate the key pair</p>
+<p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#references-radsec_on_eos-__codelineno-0-1"></a><span class="l l-Scalar l-Scalar-Plain">security pki key generate rsa 2048 switch.key</span>
+</code></pre></div>
+2.  Generate the certificate signing request using the key just created.<p></p>
+<details class="tip" open="open">
+<summary>Common Name must correspond to the Switch MAC address and the DNS needs to match the hostname of the switch</summary>
+</details>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#references-radsec_on_eos-__codelineno-1-1"></a><span class="l l-Scalar l-Scalar-Plain">security pki certificate generate signing-request key switch.key</span>
+</code></pre></div>
+<details class="quote">
+<summary>Certificate Signing Request</summary>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#references-radsec_on_eos-__codelineno-2-1"></a><span class="hll"><span class="nt">Common Name for use in subject</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2c:dd:e9:fe:cd:68</span><span class="w"> </span>
+</span><a id="__codelineno-2-2" name="__codelineno-2-2" href="#references-radsec_on_eos-__codelineno-2-2"></a><span class="hll"><span class="nt">Two-Letter Country Code for use in subject</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">US</span><span class="w"> </span>
+</span><a id="__codelineno-2-3" name="__codelineno-2-3" href="#references-radsec_on_eos-__codelineno-2-3"></a><span class="hll"><span class="nt">State for use in subject</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FL</span><span class="w"> </span>
+</span><a id="__codelineno-2-4" name="__codelineno-2-4" href="#references-radsec_on_eos-__codelineno-2-4"></a><span class="hll"><span class="nt">Locality Name for use in subject</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NFM</span><span class="w"> </span>
+</span><a id="__codelineno-2-5" name="__codelineno-2-5" href="#references-radsec_on_eos-__codelineno-2-5"></a><span class="hll"><span class="nt">Organization Name for use in subject</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Arista</span><span class="w"> </span>
+</span><a id="__codelineno-2-6" name="__codelineno-2-6" href="#references-radsec_on_eos-__codelineno-2-6"></a><span class="hll"><span class="nt">Organization Unit Name for use in subject</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">acws</span><span class="w"> </span>
+</span><a id="__codelineno-2-7" name="__codelineno-2-7" href="#references-radsec_on_eos-__codelineno-2-7"></a><span class="nt">Email address for use in subject</span><span class="p">:</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#references-radsec_on_eos-__codelineno-2-8"></a><span class="nt">IP addresses (space separated) for use in subject-alternative-name</span><span class="p">:</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#references-radsec_on_eos-__codelineno-2-9"></a><span class="hll"><span class="nt">DNS names (space separated) for use in subject-alternative-name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pod00-leaf1a</span><span class="w"> </span>
+</span><a id="__codelineno-2-10" name="__codelineno-2-10" href="#references-radsec_on_eos-__codelineno-2-10"></a><span class="nt">Email addresses (space separated) for use in subject-alternative-name</span><span class="p">:</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#references-radsec_on_eos-__codelineno-2-11"></a><span class="nt">URIs (space separated) for use in subject-alternative-name</span><span class="p">:</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#references-radsec_on_eos-__codelineno-2-12"></a><span class="l l-Scalar l-Scalar-Plain">-----BEGIN CERTIFICATE REQUEST-----</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#references-radsec_on_eos-__codelineno-2-13"></a><span class="l l-Scalar l-Scalar-Plain">MIIC0DCCAbgCAQAwYTELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAkZMMQwwCgYDVQQH</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#references-radsec_on_eos-__codelineno-2-14"></a><span class="l l-Scalar l-Scalar-Plain">DANORk0xDTALBgNVBAoMBGFjd3MxDDAKBgNVBAsMA2NzZTEaMBgGA1UEAwwRMmM6</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#references-radsec_on_eos-__codelineno-2-15"></a><span class="l l-Scalar l-Scalar-Plain">ZGQ6ZTk6ZmY6MzI6YjIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC1</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#references-radsec_on_eos-__codelineno-2-16"></a><span class="l l-Scalar l-Scalar-Plain">UDFDsidF4qhGzIEgNUlcNPtfvAGic/hQelaD9MgvOUbbVUhEg0hcbA/LLcyZQ+f/</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#references-radsec_on_eos-__codelineno-2-17"></a><span class="l l-Scalar l-Scalar-Plain">B0f/UK7eyuNhtS3lTYf7A1TqCQ7md8d4opcKbiP7vFg6+dpvAXT8giBlstv790LY</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#references-radsec_on_eos-__codelineno-2-18"></a><span class="l l-Scalar l-Scalar-Plain">wEpuCKX4igkLx+jMlNNOP7tKnuX2tuK/EYi20O2a0e4LR77ebBZpztiia9prCyvk</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#references-radsec_on_eos-__codelineno-2-19"></a><span class="l l-Scalar l-Scalar-Plain">neNhtAPMeb/O/kUBnmPwpPDy4jtpPhp8I+xX9zo4nRNjVlFcRRNao/N72kIpnmX8</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#references-radsec_on_eos-__codelineno-2-20"></a><span class="l l-Scalar l-Scalar-Plain">nnAXIcG/I1bLsgspWIwwiV3MUL3pOKUNqXaKf824/ZJgPAtUA2zgp9JayMbbddOE</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#references-radsec_on_eos-__codelineno-2-21"></a><span class="l l-Scalar l-Scalar-Plain">A3dKTwBkGOXihZkVDTnrAgMBAAGgKjAoBgkqhkiG9w0BCQ4xGzAZMBcGA1UdEQQQ</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#references-radsec_on_eos-__codelineno-2-22"></a><span class="l l-Scalar l-Scalar-Plain">MA6CDHBvZDAwLWxlYWYxYTANBgkqhkiG9w0BAQsFAAOCAQEAp8pxdX1qJ8uPFrQW</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#references-radsec_on_eos-__codelineno-2-23"></a><span class="l l-Scalar l-Scalar-Plain">ZmMmOZ+RM3lEDOJkhNA2aRVonWeejp0bz5qToT8E41RPyLIdQ56Pa+zeGx5occg8</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#references-radsec_on_eos-__codelineno-2-24"></a><span class="l l-Scalar l-Scalar-Plain">3nK3aFAu1ARPR1EJ8E04656c9v6zpF9np3juwLJm0uiM16XgUMvEmQd1anRELndn</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#references-radsec_on_eos-__codelineno-2-25"></a><span class="l l-Scalar l-Scalar-Plain">r53jlXKAcsKdFMSaW0MqXY6DN8a1PmI3KL0zzOKpwtcRSjvAXFTN8viSPOL/vrRL</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#references-radsec_on_eos-__codelineno-2-26"></a><span class="l l-Scalar l-Scalar-Plain">XTqVaa+P1d7PgRBoSi5DFY6U9nwHD42yP0kCbq98wxDrLyTfMV20ymY083XHdKPz</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#references-radsec_on_eos-__codelineno-2-27"></a><span class="l l-Scalar l-Scalar-Plain">Y4dI+YfHeK48QLBSLUKB9CrOC0XyhIMtCxBGkJ+umZy3wktZHCCkvDej7NoiNZal</span>
+<a id="__codelineno-2-28" name="__codelineno-2-28" href="#references-radsec_on_eos-__codelineno-2-28"></a><span class="l l-Scalar l-Scalar-Plain">4uEbIg==</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29" href="#references-radsec_on_eos-__codelineno-2-29"></a><span class="l l-Scalar l-Scalar-Plain">-----END CERTIFICATE REQUEST-----</span>
+</code></pre></div>
+</details>
+</li>
+<li>
+<p>Copy the certificate including the text “-----BEGIN CERTIFICATE REQUEST-----” and “-----END CERTIFICATE REQUEST-----”</p>
+</li>
+<li>
+<p>Select your Access Device from the list and select Get Client Certificate.</p>
+</li>
+<li>
+<p>Select Use CSR (Single Device) and Paste CSR.</p>
+<details class="tip" open="open">
+<summary>Note 1: CSR can also be uploaded from file by selecting action Upload CSR File</summary>
+</details>
+<details class="tip" open="open">
+<summary>Note 2: For signing multiple CSRs select Upload Zip with multiple CSRs</summary>
+</details>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../references/assets/images/agni/agni_generate_switch_crt.png" data-desc-position="bottom"><img alt="AGNI Switch Certificate" src="../references/assets/images/agni/agni_generate_switch_crt.png"></a></p>
+</li>
+<li>
+<p>Click Generate Certificate. A certificate <code>pod00-leaf1.pem</code> will be generated and downloaded. Rename this file to <code>switch.pem</code></p>
+</li>
+<li>
+<p>Go to RadSec Setting in the Navigator under Administration section to download the CA certificate.</p>
+</li>
+<li>
+<p>Download the RadSec CA certificate (radsec_ca_certificate.pem) by clicking Download Certificate.</p>
+<p>In AGNI Click on <code>Configuration → System → RadSec Settings</code> on the left hand side.</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../references/assets/images/radius/01_agni.png" data-desc-position="bottom"><img alt="AGNI Switch Certificate" src="../references/assets/images/radius/01_agni.png"></a></p>
+<p>Copy the FQDN <code>radsec.beta.agni.arista.io</code> and <code>Download the Certificate</code> at the bottom.</p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../references/assets/images/radius/03_agni.png" data-desc-position="bottom"><img alt="AGNI Switch Certificate" src="../references/assets/images/radius/03_agni.png"></a></p>
+</li>
+<li>
+<p>Copy certificates to the switch
+    The certificate and root certificate need to be copied to the switch flash using SCP.
+    Prerequisites:
+    Settings on switch to be able to SCP over the certs. Provide a username and password with network-admin role. Ensure the following settings are configured on the switch:</p>
+<p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#references-radsec_on_eos-__codelineno-3-1"></a><span class="l l-Scalar l-Scalar-Plain">aaa authentication login console local</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#references-radsec_on_eos-__codelineno-3-2"></a><span class="l l-Scalar l-Scalar-Plain">aaa authorization exec default local</span>
+</code></pre></div>
+10. Copy the certificates to the switch flash using SCP.<p></p>
+<p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#references-radsec_on_eos-__codelineno-4-1"></a><span class="nt">scp switch.pem radsec_ca_certificate.pem arista@&lt;switch_ip&gt;:/mnt/flash</span><span class="p">:</span>
+</code></pre></div>
+11. Login to your switch using the <code>arista</code> user credentials and verify the certificates are present in the flash.<p></p>
+<p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#references-radsec_on_eos-__codelineno-5-1"></a><span class="l l-Scalar l-Scalar-Plain">dir</span>
+</code></pre></div>
+12. Copy the certificates to the certificate store.<p></p>
+<p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#references-radsec_on_eos-__codelineno-6-1"></a><span class="l l-Scalar l-Scalar-Plain">copy flash:switch.pem certificate:switch.pem</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#references-radsec_on_eos-__codelineno-6-2"></a><span class="l l-Scalar l-Scalar-Plain">copy flash:radsec_ca_certificate.pem certificate:radsec_ca_certificate.pem</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#references-radsec_on_eos-__codelineno-6-3"></a><span class="l l-Scalar l-Scalar-Plain">dir certificate</span><span class="p p-Indicator">:</span>
+</code></pre></div>
+13. Verify the certificate validity.<p></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#references-radsec_on_eos-__codelineno-7-1"></a><span class="l l-Scalar l-Scalar-Plain">show management security ssl profile agni-server</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#references-radsec_on_eos-__codelineno-8-1"></a><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">Profile     State</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#references-radsec_on_eos-__codelineno-8-2"></a><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">----------- -----</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#references-radsec_on_eos-__codelineno-8-3"></a><span class="hll"><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">agni-server valid</span>
+</span></code></pre></div>
+</li>
+</ol></body></html></section><section class="print-page" id="references-cut_paste_certs" heading-number="5.5.2"><html><head>
         <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
             remove_material_navigation();remove_mkdocs_theme_navigation();generate_toc();
@@ -9943,7 +10105,9 @@ Through the connectivity tests performed by the <abbr title="Wireless Intrusion 
 .print-site-enumerate-headings #references-arista_home > h1:before { content: '5.4.1 ' }
 
 .print-site-enumerate-headings #section-5-5 > h1:before { content: '5.5 ' }
-.print-site-enumerate-headings #references-cut_paste_certs > h1:before { content: '5.5.1 ' }
+.print-site-enumerate-headings #references-radsec_on_eos > h1:before { content: '5.5.1 ' }
+
+.print-site-enumerate-headings #references-cut_paste_certs > h1:before { content: '5.5.2 ' }
 
 .print-site-enumerate-headings #section-5-6 > h1:before { content: '5.6 ' }
 .print-site-enumerate-headings #references-interface_diag > h1:before { content: '5.6.1 ' }
