@@ -45,19 +45,19 @@ jobs:
 
       - name: Add server to known hosts
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
 
       - name: Check server connectivity
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🔗 Testing connection to $SERVER_HOST..."
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "echo 'Connection successful'"
 
       - name: Backup current site
         if: github.event.inputs.dry_run != 'true'
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "💾 Creating backup of current site..."
 
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
@@ -72,14 +72,14 @@ jobs:
       - name: Dry run - Backup simulation
         if: github.event.inputs.dry_run == 'true'
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🧪 DRY RUN: Would create backup of current site..."
           echo "Command: sudo cp -r '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.backup.$(date +%Y%m%d_%H%M%S)'"
 
       - name: Update site from GitHub
         if: github.event.inputs.dry_run != 'true'
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🔄 Updating site from GitHub..."
 
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
@@ -104,7 +104,7 @@ jobs:
       - name: Dry run - Update simulation
         if: github.event.inputs.dry_run == 'true'
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🧪 DRY RUN: Would update site from GitHub..."
 
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
@@ -123,7 +123,7 @@ jobs:
       - name: Set proper permissions
         if: github.event.inputs.dry_run != 'true'
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🔐 Setting proper permissions..."
 
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
@@ -136,7 +136,7 @@ jobs:
       - name: Dry run - Permissions simulation
         if: github.event.inputs.dry_run == 'true'
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🧪 DRY RUN: Would set proper permissions..."
           echo "Commands:"
           echo "  sudo chown -R www-data:www-data '${{ env.SERVER_PATH }}'"
@@ -145,9 +145,9 @@ jobs:
 
       - name: Validate nginx configuration
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🔧 Validating nginx configuration..."
-          
+
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
             sudo nginx -t
             if [ \$? -eq 0 ]; then
@@ -161,7 +161,7 @@ jobs:
       - name: Reload nginx
         if: github.event.inputs.dry_run != 'true'
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🔄 Reloading nginx..."
 
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
@@ -173,7 +173,7 @@ jobs:
       - name: Dry run - Nginx reload simulation
         if: github.event.inputs.dry_run == 'true'
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🧪 DRY RUN: Would reload nginx..."
           echo "Command: sudo systemctl reload ${{ env.NGINX_SERVICE }}"
 
@@ -184,19 +184,19 @@ jobs:
 
       - name: Test site accessibility
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🌐 Testing site accessibility..."
-          
+
           # Test local access from server
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
             # Test local nginx response
             HTTP_CODE=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)
             if [ \"\$HTTP_CODE\" = '200' ]; then
-              echo '✅ Local site is accessible (HTTP \$HTTP_CODE)'
+              echo \"✅ Local site is accessible (HTTP \$HTTP_CODE)\"
             else
-              echo '⚠️ Local site returned HTTP \$HTTP_CODE'
+              echo \"⚠️ Local site returned HTTP \$HTTP_CODE\"
             fi
-            
+
             # Test if index.html exists
             if [ -f '${{ env.SERVER_PATH }}/index.html' ]; then
               echo '✅ index.html found'
@@ -214,7 +214,7 @@ jobs:
             echo "## 🧪 Nginx Dry Run Summary" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "- **Mode**: DRY RUN (No actual deployment)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Server**: ${{ github.event.inputs.server_host || 'mb-acws2' }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Server**: ${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}" >> $GITHUB_STEP_SUMMARY
             echo "- **Path**: ${{ env.SERVER_PATH }}" >> $GITHUB_STEP_SUMMARY
             echo "- **Status**: ✅ Dry Run Completed" >> $GITHUB_STEP_SUMMARY
             echo "- **Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
@@ -233,7 +233,7 @@ jobs:
           else
             echo "## 🚀 Nginx Deployment Summary" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Server**: ${{ github.event.inputs.server_host || 'mb-acws2' }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Server**: ${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}" >> $GITHUB_STEP_SUMMARY
             echo "- **Path**: ${{ env.SERVER_PATH }}" >> $GITHUB_STEP_SUMMARY
             echo "- **Status**: ✅ Deployed Successfully" >> $GITHUB_STEP_SUMMARY
             echo "- **Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
@@ -256,23 +256,28 @@ jobs:
     needs: deploy-to-nginx
     runs-on: ubuntu-latest
     if: success()
-    
+
     steps:
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.NGINX_SERVER_SSH_KEY }}
 
+      - name: Add server to known hosts
+        run: |
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
       - name: Cleanup old backups
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'mb-acws2' }}"
+          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🧹 Cleaning up old backups..."
-          
+
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
             # Keep only the 5 most recent backups
             cd /var/www/
             sudo find . -name 'wwt-acws.duckdns.org.backup.*' -type d | sort -r | tail -n +6 | sudo xargs rm -rf
-            
+
             # List remaining backups
             echo 'Remaining backups:'
             sudo find . -name 'wwt-acws.duckdns.org.backup.*' -type d | sort
