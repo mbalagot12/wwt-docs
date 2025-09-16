@@ -72,7 +72,7 @@ docs/snippets/login_agni.md
     
     ![AGNI Switch Certificate](../references/assets/images/agni/agni_generate_switch_crt.png)
 
-6.  Click Generate Certificate. A certificate `pod00-leaf1a.pem` will be generated and downloaded. Rename this file to `switch.pem`
+6.  Click Generate Certificate. A certificate `pod00-leaf1.pem` will be generated and downloaded. Rename this file to `switch.pem`
 
 7.  Go to RadSec Setting in the Navigator under Administration section to download the CA certificate.
 

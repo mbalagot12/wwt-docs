@@ -1,24 +1,36 @@
 # 🏫 Arista Campus Workshop Documentation
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://mbalagot12.github.io/wwt-docs/)
+[![Nginx Server](https://img.shields.io/badge/Nginx-AWS%20EC2-orange)](http://wwt-acws.duckdns.org/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-blue)](https://github.com/mbalagot12/wwt-docs/actions)
 [![MkDocs](https://img.shields.io/badge/MkDocs-Material-blue)](https://squidfunk.github.io/mkdocs-material/)
 [![Mike Versioning](https://img.shields.io/badge/Mike-Versioning-orange)](https://github.com/jimporter/mike)
 [![UV](https://img.shields.io/badge/UV-Environment-purple)](https://github.com/astral-sh/uv)
 
-Comprehensive documentation for the Arista Campus Workshop, featuring advanced version management, automated testing workflows, and seamless GitHub Pages integration.
+**Enterprise-grade documentation platform** for the Arista Campus Workshop, featuring **fully automated CI/CD pipeline**, **dual-platform deployment** (GitHub Pages + AWS EC2 nginx), **intelligent version management**, and **comprehensive dry-run testing**.
 
-## 🌟 Key Features
+## 🌟 Enterprise Features
 
-- 🔄 **Version Management**: Protected versioning with Mike
-- 🧪 **Smart Testing**: Local and GitHub Pages testing workflows
-- 🔌 **Port Handling**: Automatic port conflict resolution
-- 🔗 **Enhanced Links**: Markdown ATD links that open in new tabs
-- 🛡️ **Version Protection**: Safeguards against accidental overwrites
-- 🚀 **CI/CD Pipeline**: Fully automated deployment and testing
-- 🧪 **Dry Run Testing**: Safe testing before actual deployment
-- 🖥️ **Multi-Platform**: GitHub Pages + Nginx server deployment
-- 📊 **Health Monitoring**: Automated maintenance and monitoring
-- 📱 **Responsive Design**: Mobile-optimized documentation
+### 🚀 **Automated CI/CD Pipeline**
+- ⚡ **Push-to-Deploy**: Automatic deployment on content changes
+- 🔄 **Dual Platform**: GitHub Pages + AWS EC2 nginx server
+- 🧪 **Dry-Run Testing**: Safe testing before production deployment
+- 📊 **Health Monitoring**: Automated maintenance and status checks
+- 🔐 **Secure Authentication**: GitHub Actions with encrypted secrets
+
+### 🛡️ **Advanced Version Management**
+- 🔄 **Protected Versioning**: Mike-powered version control with safeguards
+- 🎯 **Smart Detection**: Intelligent change detection and deployment
+- 📦 **Version Isolation**: Each version completely separate and protected
+- 🔒 **Rollback Capability**: Easy rollback to previous versions
+- 📈 **Release Management**: Automated version tagging and releases
+
+### 🧪 **Comprehensive Testing**
+- 🧪 **Multi-Level Testing**: Local, GitHub Pages, and nginx server testing
+- 🔌 **Smart Port Handling**: Automatic port conflict resolution
+- 🎯 **Content Validation**: Automated link checking and content validation
+- 📱 **Cross-Platform**: Mobile-optimized responsive design
+- 🔗 **Enhanced Links**: ATD links that open in new tabs
 
 ## 🚀 Quick Start
 
@@ -53,37 +65,35 @@ uv pip install -r requirements.txt
 # Visit: http://localhost:8000/ (or alternative port if 8000 is in use)
 ```
 
-### 3. Authentication Setup
+### 3. CI/CD Pipeline Setup
 
-Choose your preferred authentication method:
+**🚀 Your CI/CD pipeline is ready to use!** The automation is already configured and will trigger automatically when you push changes.
 
-#### Option A: Secure Token Setup (Recommended for CI/CD)
+#### Quick Authentication Setup
 
 ```bash
-# Run secure token setup script
-./setup_github_token.sh
+# Add your GitHub Personal Access Token to repository secrets
+./add_repo_secret.sh
 
-# Follow prompts to enter your Personal Access Token securely
-# Token input is hidden and validated automatically
+# Or use the direct method
+./add_token_direct.sh
+
+# Or add manually via GitHub web interface:
+# Go to: https://github.com/mbalagot12/wwt-docs/settings/secrets/actions
+# Add secret: WWT_DOCS_TOKEN (your Personal Access Token)
 ```
 
-#### Option B: GitHub CLI Interactive
+#### Verify Setup
 
 ```bash
-# Authenticate with GitHub CLI (browser-based)
-gh auth login
+# Validate authentication and pipeline
+./validate_token.sh
 
-# Follow prompts to authenticate via web browser
-```
+# Test CI/CD pipeline safely
+./test_dry_run.sh
 
-#### Option C: Comprehensive CI/CD Setup
-
-```bash
-# Complete CI/CD pipeline setup with authentication
-./setup_cicd.sh
-
-# Choose authentication method when prompted
-# Includes dry-run testing and validation
+# Test AWS server connection
+./test_aws_connection.sh
 ```
 
 ### 4. Validation
@@ -240,69 +250,99 @@ mike deploy 2025.2.STL  # ✅ Allowed - new version
 mike deploy 2025.1.STL-hotfix  # ✅ Allowed - different name
 ```
 
-## 🚀 CI/CD Pipeline
+## 🚀 **GitHub Actions CI/CD Pipeline**
 
-### Automated Deployment
+### **🔄 Fully Automated Deployment**
 
-The project features a comprehensive CI/CD pipeline that automatically:
+Your CI/CD pipeline provides **enterprise-grade automation**:
 
-- ✅ **Detects changes** in documentation, data, or configuration
-- ✅ **Runs comprehensive tests** on pull requests
-- ✅ **Deploys new versions** with Mike versioning
-- ✅ **Updates GitHub Pages** automatically
-- ✅ **Syncs with nginx server** for live site updates
-- ✅ **Performs health checks** and maintenance
+#### **Automatic Triggers (Push-to-Deploy)**
+- ⚡ **Content Changes**: Automatic deployment when you push to main branch
+- 🎯 **Smart Detection**: Only triggers on documentation, data, or config changes
+- 🔄 **Dual Platform**: Deploys to both GitHub Pages and AWS EC2 nginx server
+- 📊 **Health Monitoring**: Automated status checks and maintenance
 
-### Pipeline Triggers
+#### **Manual Triggers (Version Control)**
+- 🎮 **GitHub Actions UI**: Manual workflow triggers with parameters
+- 🧪 **Dry-Run Testing**: Test deployments without making changes
+- 📦 **Version Releases**: Create and deploy specific versions
+- 🔧 **Emergency Deployments**: Force updates when needed
 
+### **🎯 How to Use Your CI/CD Pipeline**
+
+#### **For Daily Content Updates (Automatic)**
 ```bash
-# Automatic triggers:
-git push origin main           # → Auto-deploy if docs changed
-git tag v2025.2.STL           # → Create release version
-# Pull request                 # → Run tests
+# 1. Edit your documentation files
+vim docs/a_wired/a01_lab.md
 
-# Manual triggers:
-# GitHub Actions → Deploy Documentation → Run workflow
-# GitHub Actions → Deploy to Nginx Server → Run workflow
+# 2. Commit and push (triggers automatic deployment)
+git add . && git commit -m "Update lab guide" && git push
 
-# Dry run testing:
-# GitHub Actions → Deploy Documentation → Check "Dry run" → Run workflow
-# GitHub Actions → Deploy to Nginx Server → Check "Dry run" → Run workflow
+# 3. GitHub Actions automatically:
+#    - Detects changes
+#    - Builds documentation
+#    - Deploys to GitHub Pages
+#    - Syncs to AWS nginx server
+#    - Both platforms updated in ~3-5 minutes
 ```
 
-### 🧪 Dry Run Testing
-
-Test your deployments safely before making actual changes:
-
+#### **For Version Releases (Manual)**
 ```bash
-# Test locally with version manager
+# 1. Go to GitHub Actions: https://github.com/mbalagot12/wwt-docs/actions
+# 2. Select "Deploy Documentation" workflow
+# 3. Click "Run workflow"
+# 4. Fill in details:
+#    - Version: 2025.2.STL
+#    - Description: Q2 2025 Release
+#    - Set as default: true
+#    - Dry run: false (or true for testing)
+# 5. Click "Run workflow"
+```
+
+### **🧪 Comprehensive Dry-Run Testing**
+
+**Always test before deploying to production:**
+
+#### **Local Dry-Run Testing**
+```bash
+# Test version deployment locally (no actual deployment)
 ./scripts/version_manager.sh deploy 2025.2.STL "Test version" --dry-run
 
-# Run comprehensive dry run tests
+# Run comprehensive dry-run tests (recommended)
 ./test_dry_run.sh
 
-# Test via GitHub Actions:
-# 1. Go to Actions tab
-# 2. Select workflow (Deploy Documentation or Deploy to Nginx Server)
-# 3. Click "Run workflow"
-# 4. Check "Dry run" checkbox
-# 5. Fill in other details and run
+# Test AWS server connection
+./test_aws_connection.sh
 ```
 
-### Setup CI/CD Pipeline
-
+#### **GitHub Actions Dry-Run Testing**
 ```bash
-# Test your existing nginx server connection
-./test_nginx_connection.sh
+# 1. Go to: https://github.com/mbalagot12/wwt-docs/actions
+# 2. Select "Deploy Documentation" workflow
+# 3. Click "Run workflow"
+# 4. ✅ Check "Dry run" checkbox
+# 5. Fill in version details
+# 6. Click "Run workflow"
+# 7. Monitor test execution without any actual deployment
+```
 
-# One-command CI/CD setup (uses your existing mb-partner-kp.pem)
-./setup_cicd.sh
+### **🔧 AWS EC2 Server Integration**
 
-# Manual setup steps (if needed):
-# 1. Use existing SSH key: /Users/miguelbalagot/Documents/MyKeyPairs/mb-partner-kp.pem
-# 2. Add NGINX_SERVER_SSH_KEY to GitHub Secrets
-# 3. Configure nginx server (mb-acws2)
-# 4. Test pipeline with a small change
+Your nginx server is fully integrated and automated:
+
+#### **Server Details**
+- **🖥️ Server**: `ec2-3-140-61-206.us-east-2.compute.amazonaws.com`
+- **🌐 Website**: http://wwt-acws.duckdns.org/
+- **🔐 SSH Key**: `/Users/miguelbalagot/Documents/MyKeyPairs/mb-partner-kp.pem`
+- **🔄 Auto-Sync**: Automatically syncs with GitHub Pages deployments
+
+#### **Server Testing**
+```bash
+# Test server connection and status
+./test_aws_connection.sh
+
+# Manual server deployment (if needed)
+# GitHub Actions → Deploy to Nginx Server → Run workflow
 ```
 
 ## 🚀 One-Command Operations
@@ -331,19 +371,29 @@ Test your deployments safely before making actual changes:
 # Creates timestamped backup branch
 ```
 
-## 🌐 URLs and Access
+## 🌐 **Live Documentation Access**
 
-### Live Documentation
+### **Production Platforms**
 
-- **Main site**: [https://mbalagot12.github.io/wwt-docs/](https://mbalagot12.github.io/wwt-docs/)
-- **Current version**: [https://mbalagot12.github.io/wwt-docs/2025.1.STL/](https://mbalagot12.github.io/wwt-docs/2025.1.STL/)
-- **Version selector**: Available on all pages
+#### **GitHub Pages (Primary)**
+- **🌐 Main Site**: [https://mbalagot12.github.io/wwt-docs/](https://mbalagot12.github.io/wwt-docs/)
+- **📦 Current Version**: [https://mbalagot12.github.io/wwt-docs/2025.1.STL/](https://mbalagot12.github.io/wwt-docs/2025.1.STL/)
+- **🔄 Version Selector**: Available on all pages
+- **⚡ Auto-Deploy**: Updates automatically on push
 
-### Local Development
+#### **AWS EC2 Nginx Server (Secondary)**
+- **🖥️ Live Site**: [http://wwt-acws.duckdns.org/](http://wwt-acws.duckdns.org/)
+- **🔄 Auto-Sync**: Syncs with GitHub Pages automatically
+- **🛡️ Backup Platform**: Provides redundancy and local access
+- **⚡ Fast Updates**: Updates within minutes of GitHub deployment
 
-- **Default**: http://localhost:8000/
-- **Smart ports**: Automatically finds available ports
-- **Version-specific**: http://localhost:PORT/VERSION/
+### **Development Environment**
+
+#### **Local Testing**
+- **🏠 Default**: `http://localhost:8000/`
+- **🔌 Smart Ports**: Automatically finds available ports (8001, 8002, etc.)
+- **📦 Version-Specific**: `http://localhost:PORT/VERSION/`
+- **🧪 Dry-Run Testing**: Test versions before deployment
 
 ## 🛠️ Troubleshooting
 
@@ -396,17 +446,25 @@ git config --global credential.helper cache
 ./test_port_handling.sh
 ```
 
-## 📚 Documentation
+## 📚 **Complete Documentation Suite**
 
-### Comprehensive Guides
+### **🚀 CI/CD and Automation Guides**
 
-- **[CI_CD_PIPELINE.md](CI_CD_PIPELINE.md)**: Complete CI/CD pipeline documentation
-- **[NGINX_DEPLOYMENT_GUIDE.md](NGINX_DEPLOYMENT_GUIDE.md)**: Nginx server deployment guide
-- **[VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md)**: Complete version strategy
-- **[SYNC_WORKFLOW.md](SYNC_WORKFLOW.md)**: GitHub synchronization workflows
-- **[TESTING_WORKFLOW.md](TESTING_WORKFLOW.md)**: Detailed testing procedures
-- **[TESTING_QUICK_REFERENCE.md](TESTING_QUICK_REFERENCE.md)**: Quick testing commands
-- **[SETUP_VERSION_PROTECTION.md](SETUP_VERSION_PROTECTION.md)**: Protection setup guide
+- **[GITHUB_ACTIONS_AUTOMATION.md](GITHUB_ACTIONS_AUTOMATION.md)**: Complete GitHub Actions automation guide
+- **[CI_CD_PIPELINE.md](CI_CD_PIPELINE.md)**: Comprehensive CI/CD pipeline documentation
+- **[AWS_SERVER_SETUP_COMPLETE.md](AWS_SERVER_SETUP_COMPLETE.md)**: AWS EC2 server integration guide
+- **[NGINX_DEPLOYMENT_GUIDE.md](NGINX_DEPLOYMENT_GUIDE.md)**: Nginx server deployment and management
+
+### **🛡️ Security and Authentication**
+
+- **[SECURITY_GUIDE.md](SECURITY_GUIDE.md)**: Complete security and authentication guide
+- **[SECURE_DEPLOYMENT_SUMMARY.md](SECURE_DEPLOYMENT_SUMMARY.md)**: Security deployment summary
+
+### **🧪 Testing and Version Management**
+
+- **[VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md)**: Advanced version control strategy
+- **[TESTING_WORKFLOW.md](TESTING_WORKFLOW.md)**: Comprehensive testing procedures
+- **[TESTING_QUICK_REFERENCE.md](TESTING_QUICK_REFERENCE.md)**: Quick testing commands reference
 
 ### External Resources
 
@@ -445,38 +503,77 @@ git config --global credential.helper cache
 
 ---
 
-## 🎯 Quick Commands Reference
+## 🎯 **Quick Commands Reference**
+
+### **🚀 CI/CD Pipeline (Ready to Use!)**
 
 ```bash
-# Setup and authentication
-gh auth login
-./setup_cicd.sh                    # Complete CI/CD pipeline setup
-./setup_sync.sh                    # Version management setup
+# Your CI/CD pipeline is already configured and ready!
 
-# Daily development
-./scripts/version_manager.sh serve
-./scripts/version_manager.sh status
+# 1. AUTOMATIC DEPLOYMENT (Just push your changes)
+git add . && git commit -m "Update docs" && git push
+# → GitHub Actions automatically deploys to both platforms
 
-# Dry run testing (RECOMMENDED FIRST)
-./test_dry_run.sh                  # Comprehensive dry run tests
-./scripts/version_manager.sh deploy <version> "Description" --dry-run
+# 2. MANUAL VERSION DEPLOYMENT
+# Go to: https://github.com/mbalagot12/wwt-docs/actions
+# → Deploy Documentation → Run workflow → Fill details → Run
 
-# Version deployment (manual)
-./scripts/version_manager.sh deploy <version> "Description" --push
-./scripts/version_manager.sh set-default <version> --push
-
-# CI/CD operations
-git push origin main               # → Triggers automatic deployment
-gh workflow run deploy-docs.yml   # → Manual deployment trigger
-gh run list                       # → View workflow status
-
-# Testing
-./scripts/version_manager.sh test <version>
-./test_setup.sh
-
-# Emergency
-./scripts/version_manager.sh backup
-./scripts/version_manager.sh sync
+# 3. DRY-RUN TESTING (Always test first!)
+./test_dry_run.sh                  # Comprehensive testing
+./test_aws_connection.sh           # AWS server testing
 ```
 
-**🚀 Ready to start? Run `./setup_cicd.sh` to configure the complete CI/CD pipeline!**
+### **🔧 Authentication Setup**
+
+```bash
+# Add your GitHub token to repository secrets
+./add_repo_secret.sh               # Secure token setup
+./add_token_direct.sh              # Direct method
+./validate_token.sh                # Verify setup
+```
+
+### **🧪 Local Development and Testing**
+
+```bash
+# Local development
+./scripts/version_manager.sh serve # Start local server
+./scripts/version_manager.sh status # Check status
+
+# Version management
+./scripts/version_manager.sh deploy <version> "Description" --dry-run
+./scripts/version_manager.sh deploy <version> "Description" --push
+./scripts/version_manager.sh set-default <version> --push
+```
+
+### **📊 Monitoring and Status**
+
+```bash
+# GitHub Actions monitoring
+gh run list                        # View workflow runs
+gh run watch                       # Watch current run
+open "https://github.com/mbalagot12/wwt-docs/actions"
+
+# Platform status
+curl -I https://mbalagot12.github.io/wwt-docs/
+curl -I http://wwt-acws.duckdns.org/
+```
+
+---
+
+## 🎉 **Your Enterprise CI/CD Pipeline is Ready!**
+
+### **✅ What's Already Configured:**
+- 🚀 **Automatic deployment** on content changes
+- 🔄 **Dual-platform deployment** (GitHub Pages + AWS EC2)
+- 🧪 **Comprehensive dry-run testing**
+- 🛡️ **Version protection** and management
+- 📊 **Health monitoring** and maintenance
+- 🔐 **Secure authentication** with encrypted secrets
+
+### **🎯 Next Steps:**
+1. **Add your token**: Run `./add_repo_secret.sh`
+2. **Test the pipeline**: Run `./test_dry_run.sh`
+3. **Make a change**: Edit any file in `docs/` and push
+4. **Watch automation**: Monitor at https://github.com/mbalagot12/wwt-docs/actions
+
+**Your documentation platform is now enterprise-ready with full CI/CD automation!** 🚀✨
