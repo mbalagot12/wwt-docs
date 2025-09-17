@@ -95,8 +95,8 @@ jobs:
                 echo '🎯 Mike versioning detected - updating content within version directory...'
 
                 # Clone fresh content to temporary directory
-                TEMP_DIR='/tmp/wwt-docs-update-\$(date +%s)'
-                sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git \$TEMP_DIR
+                TEMP_DIR=\"/tmp/wwt-docs-update-\$(date +%s)\"
+                sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git \"\$TEMP_DIR\"
 
                 if [ -d \"\$TEMP_DIR\" ]; then
                   echo '📥 Fresh content cloned to temporary directory'
