@@ -94,9 +94,9 @@ jobs:
               if [ -d '${{ env.SERVER_PATH }}/2025.1.STL' ]; then
                 echo '🎯 Mike versioning detected - updating content within version directory...'
 
-                # Clone fresh content to temporary directory
+                # Clone fresh content to temporary directory (public repo, no auth needed)
                 TEMP_DIR=\"/tmp/wwt-docs-update-\$(date +%s)\"
-                sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git \"\$TEMP_DIR\"
+                git clone -b gh-pages https://github.com/${{ github.repository }}.git \"\$TEMP_DIR\"
 
                 if [ -d \"\$TEMP_DIR\" ]; then
                   echo '📥 Fresh content cloned to temporary directory'
@@ -112,7 +112,7 @@ jobs:
                   fi
 
                   # Clean up temporary directory
-                  sudo rm -rf \$TEMP_DIR
+                  rm -rf \$TEMP_DIR
                 else
                   echo '❌ Failed to clone fresh content'
                   exit 1
