@@ -1,6 +1,6 @@
 site_name: Arista Campus Workshop
 site_description: Arista Campus Workshop
-# Lab documentation synchronized with presidio-docs - CI/CD pipeline with Mike versioning
+# Lab documentation synchronized with presidio-docs - Testing reliable CI/CD pipeline
 watch: ["docs", "mkdocs.yml"]
 
 nav:
