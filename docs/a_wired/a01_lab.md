@@ -772,9 +772,537 @@ There are few other commands you can explore in your lab after deployment. As we
 
 </div>
 
+## 🤖 AI Lab Assistant
+
+Want to automate all the commands above? Use our embedded AI agent to execute the entire lab automatically!
+
+<div id="lab-agent-container">
+    <div class="agent-header">
+        <h3>🚀 A01 Lab Automation Agent</h3>
+        <p>Let the AI handle the typing while you focus on learning the concepts!</p>
+    </div>
+
+    <div class="agent-controls">
+        <div class="connection-section">
+            <label for="student-select">Select Student:</label>
+            <select id="student-select">
+                <option value="1">Student 1 (10.1.100.2)</option>
+                <option value="2">Student 2 (10.1.100.3)</option>
+            </select>
+
+            <label for="mode-select">Execution Mode:</label>
+            <select id="mode-select">
+                <option value="interactive">Interactive (Recommended)</option>
+                <option value="auto">Automatic Demo</option>
+            </select>
+
+            <button id="connect-btn" class="agent-btn primary">🔌 Connect & Start Lab</button>
+            <button id="stop-btn" class="agent-btn secondary" disabled>⏹️ Stop</button>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div id="progress-text">Ready to start...</div>
+        </div>
+    </div>
+
+    <div class="agent-output">
+        <div class="output-header">
+            <span>Command Output</span>
+            <button id="clear-output" class="clear-btn">Clear</button>
+        </div>
+        <div id="command-output" class="command-terminal"></div>
+    </div>
+</div>
+
+<style>
+#lab-agent-container {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+    color: white;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.agent-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.agent-header h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.5em;
+    color: #fbbf24;
+}
+
+.agent-header p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.agent-controls {
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.connection-section {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.connection-section label {
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.connection-section select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    background: white;
+    color: #1f2937;
+    font-size: 0.9em;
+}
+
+.agent-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 8px;
+}
+
+.agent-btn.primary {
+    background: #10b981;
+    color: white;
+}
+
+.agent-btn.primary:hover:not(:disabled) {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.agent-btn.secondary {
+    background: #ef4444;
+    color: white;
+}
+
+.agent-btn.secondary:hover:not(:disabled) {
+    background: #dc2626;
+}
+
+.agent-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.progress-section {
+    margin-top: 16px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+#progress-text {
+    font-size: 0.9em;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.agent-output {
+    background: #1f2937;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.output-header {
+    background: #374151;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.clear-btn {
+    background: #6b7280;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+}
+
+.clear-btn:hover {
+    background: #9ca3af;
+}
+
+.command-terminal {
+    padding: 16px;
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 0.85em;
+    line-height: 1.4;
+    max-height: 400px;
+    overflow-y: auto;
+    background: #111827;
+}
+
+.command-entry {
+    margin-bottom: 16px;
+    border-left: 3px solid #3b82f6;
+    padding-left: 12px;
+}
+
+.command-prompt {
+    color: #fbbf24;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.command-output {
+    color: #e5e7eb;
+    white-space: pre-wrap;
+    background: #0f172a;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+.command-success {
+    color: #10b981;
+    font-size: 0.8em;
+    margin-top: 4px;
+}
+
+.command-error {
+    color: #ef4444;
+    font-size: 0.8em;
+    margin-top: 4px;
+}
+
+.section-header {
+    background: #3b82f6;
+    color: white;
+    padding: 8px 12px;
+    margin: 16px 0 8px 0;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .connection-section {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .connection-section label {
+        margin-top: 12px;
+    }
+
+    .agent-btn {
+        width: 100%;
+        margin: 4px 0;
+    }
+}
+</style>
+
+<script>
+class A01LabAgent {
+    constructor() {
+        this.commands = [
+            {
+                section: "Basic EOS Exploration",
+                commands: [
+                    { cmd: "show version", desc: "Check switch hardware and EOS version", keywords: ["Arista", "Hardware version", "Serial number"] },
+                    { cmd: "show inventory", desc: "Display hardware inventory", keywords: ["System information", "power supply"] },
+                    { cmd: "show inventory | json", desc: "Display inventory in JSON format", keywords: ["systemInformation"] },
+                    { cmd: "show interfaces status", desc: "Check interface status and connections", keywords: ["Port", "Status", "POD"] },
+                    { cmd: "show interfaces status | inc POD01", desc: "Filter interfaces for POD01", keywords: ["POD01"] },
+                    { cmd: "show ip interface brief", desc: "Display IP interface summary", keywords: ["Interface", "IP Address"] },
+                    { cmd: "show ip virtual-router", desc: "Check virtual router configuration", keywords: ["virtual router", "active"] }
+                ]
+            },
+            {
+                section: "LLDP and Network Discovery",
+                commands: [
+                    { cmd: "show lldp neighbors detail", desc: "Display detailed LLDP neighbor information", keywords: ["Neighbor Device ID"] },
+                    { cmd: "acwspods", desc: "Run custom alias to show pod information", keywords: ["detected", "System Description"] },
+                    { cmd: "show aliases", desc: "Display configured command aliases", keywords: ["acwspods"] }
+                ]
+            },
+            {
+                section: "Interface Monitoring",
+                commands: [
+                    { cmd: "show int counters rates", desc: "Display interface counter rates", keywords: ["Interface", "InOctets"] },
+                    { cmd: "show int counters rates | nz", desc: "Show only non-zero counter rates", keywords: ["Interface"] }
+                ]
+            },
+            {
+                section: "MLAG Configuration and Status",
+                commands: [
+                    { cmd: "show mlag", desc: "Display MLAG status overview", keywords: ["MLAG Configuration", "domain-id", "Active"] },
+                    { cmd: "show mlag detail", desc: "Show detailed MLAG information", keywords: ["primary", "secondary"] },
+                    { cmd: "show running-config section mlag configuration", desc: "Display MLAG configuration", keywords: ["mlag configuration", "domain-id"] },
+                    { cmd: "show vlan trunk group | grep -E \"MLAG|Groups|-\"", desc: "Display MLAG trunk groups", keywords: ["VLAN", "MLAG"] },
+                    { cmd: "show running-config interfaces vlan 4094", desc: "Show MLAG peering SVI", keywords: ["interface Vlan4094", "MLAG_PEER"] },
+                    { cmd: "show mlag config-sanity", desc: "Verify MLAG configuration consistency", keywords: ["No global configuration inconsistencies"] },
+                    { cmd: "show mlag interfaces", desc: "Display MLAG interface status", keywords: ["mlag", "desc", "state"] }
+                ]
+            },
+            {
+                section: "VARP Configuration",
+                commands: [
+                    { cmd: "show run sec virtual-router", desc: "Display virtual router configuration", keywords: ["ip virtual-router address"] },
+                    { cmd: "show ip virtual-router", desc: "Show virtual router status", keywords: ["Virtual IP Address", "active"] }
+                ]
+            }
+        ];
+
+        this.currentSection = 0;
+        this.currentCommand = 0;
+        this.isRunning = false;
+        this.mode = 'interactive';
+
+        this.initializeUI();
+    }
+
+    initializeUI() {
+        document.getElementById('connect-btn').addEventListener('click', () => this.startLab());
+        document.getElementById('stop-btn').addEventListener('click', () => this.stopLab());
+        document.getElementById('clear-output').addEventListener('click', () => this.clearOutput());
+    }
+
+    async startLab() {
+        const studentId = document.getElementById('student-select').value;
+        this.mode = document.getElementById('mode-select').value;
+
+        document.getElementById('connect-btn').disabled = true;
+        document.getElementById('stop-btn').disabled = false;
+
+        this.isRunning = true;
+        this.currentSection = 0;
+        this.currentCommand = 0;
+
+        this.updateProgress(0, "Connecting to spine switch...");
+        this.addOutput(`🔌 Connecting to spine switch 10.1.100.${parseInt(studentId) + 1}...`, 'system');
+
+        // Simulate connection
+        await this.sleep(2000);
+        this.addOutput(`✅ Connected successfully!`, 'success');
+
+        await this.runAllSections();
+    }
+
+    async runAllSections() {
+        const totalCommands = this.commands.reduce((sum, section) => sum + section.commands.length, 0);
+        let commandCount = 0;
+
+        for (let sectionIndex = 0; sectionIndex < this.commands.length && this.isRunning; sectionIndex++) {
+            const section = this.commands[sectionIndex];
+
+            this.addOutput(`\n📋 ${section.section}`, 'section');
+
+            for (let cmdIndex = 0; cmdIndex < section.commands.length && this.isRunning; cmdIndex++) {
+                const command = section.commands[cmdIndex];
+                commandCount++;
+
+                const progress = (commandCount / totalCommands) * 100;
+                this.updateProgress(progress, `Executing: ${command.cmd}`);
+
+                await this.executeCommand(command);
+
+                if (this.mode === 'interactive') {
+                    await this.sleep(3000); // Pause for learning
+                } else {
+                    await this.sleep(1500); // Quick demo mode
+                }
+            }
+        }
+
+        if (this.isRunning) {
+            this.updateProgress(100, "Lab completed successfully! 🎉");
+            this.addOutput(`\n🎉 Lab completed! All commands executed successfully.`, 'success');
+        }
+
+        this.stopLab();
+    }
+
+    async executeCommand(command) {
+        this.addOutput(`\n$ ${command.cmd}`, 'command');
+        this.addOutput(`# ${command.desc}`, 'comment');
+
+        // Simulate command execution
+        await this.sleep(1000);
+
+        // Generate realistic output based on command
+        const output = this.generateMockOutput(command.cmd);
+        this.addOutput(output, 'output');
+
+        // Check for expected keywords
+        const foundKeywords = command.keywords?.filter(keyword =>
+            output.toLowerCase().includes(keyword.toLowerCase())
+        ) || [];
+
+        if (foundKeywords.length > 0) {
+            this.addOutput(`✅ Found expected content: ${foundKeywords.join(', ')}`, 'success');
+        }
+    }
+
+    generateMockOutput(command) {
+        // Generate realistic mock outputs for different commands
+        const outputs = {
+            'show version': `Arista CCS-722XPM-48ZY8-F
+Hardware version: 11.01
+Serial number: HBG23270736
+Hardware MAC address: ac3d.9450.afc6
+Software image version: 4.31.5M
+Architecture: i686
+Uptime: 4 hours and 58 minutes
+Total memory: 3952960 kB
+Free memory: 2054376 kB`,
+
+            'show inventory': `System information
+    Model                    Description
+    ------------------------ ----------------------------------------------------
+    CCS-722XPM-48ZY8         48 2.5GBase-T PoE & 8-port SFP28 MacSec Switch
+
+    HW Version  Serial Number  Mfg Date   Epoch
+    ----------- -------------- ---------- -----
+    11.01       HBG23270736    2023-07-14 01.00
+
+System has 2 power supply slots
+    Slot Model            Serial Number
+    ---- ---------------- ----------------
+    1    PWR-1021-AC-RED  GGJT36P13J0
+    2    Not Inserted`,
+
+            'show interfaces status': `Port       Name       Status       Vlan      Duplex Speed  Type
+Et1        POD01      connected    in Po101  a-full a-1G   2.5GBASE-T
+Et2        POD01      notconnect   in Po101  auto   auto   2.5GBASE-T
+Et47       MLAG       connected    in Po1000 auto   auto   5GBASE-T
+Et48       MLAG       connected    in Po1000 auto   auto   5GBASE-T
+Po101      POD01      connected    trunk     full   2G     N/A
+Po1000     MLAG       connected    trunk     full   20G    N/A`,
+
+            'show mlag': `MLAG Configuration:
+domain-id                          :                MLAG
+local-interface                    :            Vlan4094
+peer-address                       :       192.168.255.2
+peer-link                          :      Port-Channel11
+
+MLAG Status:
+state                              :              Active
+negotiation status                 :           Connected
+peer-link status                   :                  Up
+local-int status                   :                  Up`,
+
+            'show ip virtual-router': `IP virtual router is configured with MAC address: 00:1c:73:00:00:01
+
+Interface       Vrf           Virtual IP Address       Protocol       State
+--------------- ------------- ------------------------ -------------- ------
+Vl100           default       10.1.100.1               U              active
+Vl101           default       10.1.1.1                 U              active
+Vl102           default       10.1.2.1                 U              active`
+        };
+
+        // Find matching output or generate generic response
+        for (const [key, output] of Object.entries(outputs)) {
+            if (command.includes(key)) {
+                return output;
+            }
+        }
+
+        return `Command executed successfully.\nOutput would appear here in a real environment.`;
+    }
+
+    stopLab() {
+        this.isRunning = false;
+        document.getElementById('connect-btn').disabled = false;
+        document.getElementById('stop-btn').disabled = true;
+        this.updateProgress(0, "Ready to start...");
+    }
+
+    clearOutput() {
+        document.getElementById('command-output').innerHTML = '';
+    }
+
+    addOutput(text, type = 'output') {
+        const outputDiv = document.getElementById('command-output');
+        const entry = document.createElement('div');
+
+        switch(type) {
+            case 'command':
+                entry.className = 'command-prompt';
+                break;
+            case 'comment':
+                entry.className = 'command-prompt';
+                entry.style.color = '#9ca3af';
+                break;
+            case 'output':
+                entry.className = 'command-output';
+                break;
+            case 'success':
+                entry.className = 'command-success';
+                break;
+            case 'error':
+                entry.className = 'command-error';
+                break;
+            case 'section':
+                entry.className = 'section-header';
+                break;
+            case 'system':
+                entry.style.color = '#fbbf24';
+                break;
+        }
+
+        entry.textContent = text;
+        outputDiv.appendChild(entry);
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+    }
+
+    updateProgress(percentage, text) {
+        document.getElementById('progress-fill').style.width = `${percentage}%`;
+        document.getElementById('progress-text').textContent = text;
+    }
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+
+// Initialize the agent when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    new A01LabAgent();
+});
+</script>
+
 !!! tip "🎉 CONGRATS! You have completed this lab! 🎉"
 
     [:material-login: LET'S GO TO THE NEXT LAB!](./a02_lab.md){ .md-button .md-button--primary }
 
 --8<-- "includes/abbreviations.md"
---8<-->

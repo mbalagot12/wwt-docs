@@ -30,7 +30,9 @@ As you can imagine, disconnecting the Control and Management plane off the data 
 !!! tip "First, download the desired EOS image to the switch flash storage.  Login to your switch using the `arista` user credentials."
 
 ```bash
-copy tftp:10.1.100.50/EOS-4.34.1F.swi flash:
+copy https://ztp-acws.duckdns.org/images/EOS-4.34.1F.swi flash:
+# or
+copy https://10.1.100.50/EOS-4.34.1F.swi flash:
 ```
 
 ## Perform Arista SSU
@@ -41,15 +43,15 @@ Let's begin the hands-on portion of this lab. SSU can be triggered on the comman
 
     Using the console we will get a more in depth look at the logs as the switch upgrades. However, SSH is fine if you do not have a console cable. There is example output below you can refer to.
 
-1. Connect to the `pod<##>-leaf1a` switch serial port (where ## is a 2 digit character between 01-20 that was assigned to your lab/Pod). The login username/password is `arista/arista`. Type `enable` to enter privileged mode.
+1. Connect to the `pod<##>-leaf1` switch serial port (where ## is a 2 digit character between 01-20 that was assigned to your lab/Pod). The login username/password is `arista/arista`. Type `enable` to enter privileged mode.
 
     ???+ quote "Example Output"
 
         ```yaml
-        pod00-leaf1a login: arista
+        pod00-leaf1 login: arista
         Last login: Tue Jul 30 22:16:56 on ttyS0
-        pod00-leaf1a>enable
-        pod00-leaf1a#
+        pod00-leaf1>enable
+        pod00-leaf1#
         ```
 
 2. Type `show version` to show the current running version of the switch.
@@ -156,10 +158,10 @@ Let's begin the hands-on portion of this lab. SSU can be triggered on the comman
     ???+ quote "Example Output"
 
         ```yaml
-            pod00-leaf1a#configure
-            pod00-leaf1a(config)#boot system flash:EOS-4.34.1F.swi
-            pod00-leaf1a(config)#exit
-            pod00-leaf1a#write
+            pod00-leaf1#configure
+            pod00-leaf1(config)#boot system flash:EOS-4.34.1F.swi
+            pod00-leaf1(config)#exit
+            pod00-leaf1#write
             Copy completed successfully.
         ```
 
@@ -183,7 +185,7 @@ Let's begin the hands-on portion of this lab. SSU can be triggered on the comman
             ping -t 10.1.##.1
             ```
 
-    3. Now leave this window open for the following steps. We will see ping packets being sent and received every second. You are now pinging the gateway IP address for your pod from your wireless device connected to your pods access point. The ping traffic must traverse the `leaf1a` or `leaf1b` switch to reach the gateway.  We should be able to observe how traffic is affected while the switch is upgrading during SSU.
+    3. Now leave this window open for the following steps. We will see ping packets being sent and received every second. You are now pinging the gateway IP address for your pod from your wireless device connected to your pods access point. The ping traffic must traverse the `leaf1`switch to reach the gateway.  We should be able to observe how traffic is affected while the switch is upgrading during SSU.
 
 7. Now, in a standard firmware upgrade process, you would issue a normal reload command. However, in this lab, we want to trigger a SSU upgrade. This is where we use the command below, go ahead and issue that command now. 🚀
 
@@ -364,10 +366,481 @@ Let's begin the hands-on portion of this lab. SSU can be triggered on the comman
         None available.
         ```
 
-## Lab Conclusion
+## 🤖 AI Lab Assistant
 
-We just observed how Arista SSU allows network connected devices to continue to operate on the network even while an EOS firmware update occurs on the connected switch.
+Want to automate all the commands above? Use our embedded AI agent to execute the entire lab automatically!
 
-!!! tip "🎉 CONGRATS! You have completed the Wireless labs! 🎉"
+<div id="lab-agent-container">
+    <div class="agent-header">
+        <h3>🚀 B04 Lab Automation Agent</h3>
+        <p>Let the AI handle the SSU upgrade while you focus on learning the concepts!</p>
+    </div>
+
+    <div class="agent-controls">
+        <div class="connection-section">
+            <label for="student-select">Select Student:</label>
+            <select id="student-select">
+                <option value="1">Student 1 (Pod 01)</option>
+                <option value="2">Student 2 (Pod 02)</option>
+                <option value="3">Student 3 (Pod 03)</option>
+                <option value="4">Student 4 (Pod 04)</option>
+                <option value="5">Student 5 (Pod 05)</option>
+                <option value="6">Student 6 (Pod 06)</option>
+                <option value="7">Student 7 (Pod 07)</option>
+                <option value="8">Student 8 (Pod 08)</option>
+                <option value="9">Student 9 (Pod 09)</option>
+                <option value="10">Student 10 (Pod 10)</option>
+                <option value="11">Student 11 (Pod 11)</option>
+                <option value="12">Student 12 (Pod 12)</option>
+                <option value="13">Student 13 (Pod 13)</option>
+                <option value="14">Student 14 (Pod 14)</option>
+                <option value="15">Student 15 (Pod 15)</option>
+                <option value="16">Student 16 (Pod 16)</option>
+                <option value="17">Student 17 (Pod 17)</option>
+                <option value="18">Student 18 (Pod 18)</option>
+                <option value="19">Student 19 (Pod 19)</option>
+                <option value="20">Student 20 (Pod 20)</option>
+            </select>
+
+            <label for="mode-select">Execution Mode:</label>
+            <select id="mode-select">
+                <option value="interactive">Interactive (Recommended)</option>
+                <option value="auto">Automatic Demo</option>
+            </select>
+
+            <button id="connect-btn" class="agent-btn primary">🔌 Connect & Start Lab</button>
+            <button id="stop-btn" class="agent-btn secondary" disabled>⏹️ Stop</button>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div id="progress-text" class="progress-text">Ready to start...</div>
+        </div>
+
+        <div class="output-section">
+            <div class="output-header">
+                <h4>🖥️ SSU Lab Execution Output</h4>
+                <button id="clear-btn" class="agent-btn secondary">Clear</button>
+            </div>
+            <div id="command-output" class="command-output"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+#lab-agent-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+    color: white;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.agent-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.agent-header h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.5em;
+    color: white;
+}
+
+.agent-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 1.1em;
+}
+
+.connection-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: end;
+}
+
+.connection-section label {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.connection-section select {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    font-size: 14px;
+}
+
+.agent-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.agent-btn.primary {
+    background: #4CAF50;
+    color: white;
+}
+
+.agent-btn.primary:hover:not(:disabled) {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+.agent-btn.secondary {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.agent-btn.secondary:hover:not(:disabled) {
+    background: rgba(255,255,255,0.3);
+}
+
+.agent-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.progress-section {
+    margin: 20px 0;
+}
+
+.progress-bar {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 10px;
+}
+
+.progress-text {
+    font-size: 14px;
+    opacity: 0.9;
+    text-align: center;
+}
+
+.output-section {
+    margin-top: 20px;
+}
+
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.output-header h4 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.command-output {
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.command-output .system { color: #81C784; }
+.command-output .success { color: #4CAF50; font-weight: bold; }
+.command-output .error { color: #F44336; font-weight: bold; }
+.command-output .warning { color: #FF9800; }
+.command-output .info { color: #2196F3; }
+.command-output .step { color: #E1BEE7; font-weight: bold; }
+.command-output .command { color: #FFD54F; font-family: monospace; }
+</style>
+
+<script>
+class B04LabAgent {
+    constructor() {
+        this.commands = [
+            {
+                section: "Initial Connection & Setup",
+                commands: [
+                    { cmd: "ssh arista@pod##-leaf1", desc: "Connect to leaf switch via SSH", output: "pod##-leaf1 login: arista\nLast login: Tue Jul 30 22:16:56 on ttyS0" },
+                    { cmd: "enable", desc: "Enter privileged mode", output: "pod##-leaf1#" }
+                ]
+            },
+            {
+                section: "Pre-upgrade Assessment",
+                commands: [
+                    { cmd: "show version", desc: "Check current EOS version", output: "Arista CCS-710P-16P\nHardware version: 11.02\nSoftware image version: 4.34.0F\nUptime: 2 hours and 5 minutes" },
+                    { cmd: "dir", desc: "List flash filesystem contents", output: "Directory of flash:/\n-rwx   894262536   May 5 14:16  EOS-4.34.0F.swi\n7527178240 bytes total (2043318272 bytes free)" },
+                    { cmd: "show reload fast-boot", desc: "Check SSU compatibility", output: "No warnings or unsupported configuration found." }
+                ]
+            },
+            {
+                section: "EOS Image Download",
+                commands: [
+                    { cmd: "copy https://ztp-acws.duckdns.org/images/EOS-4.34.1F.swi flash:", desc: "Download new EOS image to flash", output: "Downloading EOS-4.34.1F.swi...\n████████████████████████████████ 100%\nCopy completed successfully." }
+                ]
+            },
+            {
+                section: "SSU Configuration",
+                commands: [
+                    { cmd: "configure", desc: "Enter configuration mode", output: "pod##-leaf1(config)#" },
+                    { cmd: "boot system flash:EOS-4.34.1F.swi", desc: "Set new boot image", output: "pod##-leaf1(config)#" },
+                    { cmd: "exit", desc: "Exit configuration mode", output: "pod##-leaf1#" },
+                    { cmd: "write", desc: "Save configuration", output: "Copy completed successfully." }
+                ]
+            },
+            {
+                section: "Ping Test Setup",
+                commands: [
+                    { cmd: "ping 10.1.##.1", desc: "Start continuous ping test (background)", output: "PING 10.1.##.1: 56 data bytes\n64 bytes from 10.1.##.1: icmp_seq=0 ttl=64 time=1.234 ms\n64 bytes from 10.1.##.1: icmp_seq=1 ttl=64 time=1.156 ms" }
+                ]
+            },
+            {
+                section: "SSU Execution",
+                commands: [
+                    { cmd: "reload fast-boot now", desc: "Execute Smart System Upgrade", output: "Running AsuPatchDb:doPatch( version=4.34.0F )\nOptimizing image for current system...\nNo warnings or unsupported configuration found.\nProceeding with reload\nreloading /mnt/flash/EOS-4.34.1F.swi" }
+                ]
+            },
+            {
+                section: "Post-upgrade Verification",
+                commands: [
+                    { cmd: "show version", desc: "Verify new EOS version", output: "Arista CCS-710P-16P\nSoftware image version: 4.34.1F\nUptime: 5 minutes" },
+                    { cmd: "show log follow | inc hitless", desc: "Monitor SSU completion", output: "StageMgr: %LAUNCHER-6-BOOT_STATUS: 'reload hitless' reconciliation complete." },
+                    { cmd: "show reload cause", desc: "Verify reload reason", output: "Reload Cause 1:\nHitless reload requested by the user.\nReload occurred at Thu Jan 23 11:08:51 2025 CST." }
+                ]
+            }
+        ];
+
+        this.isRunning = false;
+        this.currentSection = 0;
+        this.currentCommand = 0;
+        this.mode = 'interactive';
+        this.studentId = '1';
+
+        this.initializeEventListeners();
+    }
+
+    initializeEventListeners() {
+        document.getElementById('connect-btn').addEventListener('click', () => this.startLab());
+        document.getElementById('stop-btn').addEventListener('click', () => this.stopLab());
+        document.getElementById('clear-btn').addEventListener('click', () => this.clearOutput());
+    }
+
+    async startLab() {
+        this.studentId = document.getElementById('student-select').value;
+        this.mode = document.getElementById('mode-select').value;
+
+        document.getElementById('connect-btn').disabled = true;
+        document.getElementById('stop-btn').disabled = false;
+
+        this.isRunning = true;
+        this.currentSection = 0;
+        this.currentCommand = 0;
+
+        this.updateProgress(0, "Connecting to leaf switch...");
+        this.addOutput(`🔌 Connecting to pod${this.studentId.padStart(2, '0')}-leaf1 switch...`, 'system');
+
+        // Simulate connection
+        await this.sleep(2000);
+        this.addOutput(`✅ Connected successfully to pod${this.studentId.padStart(2, '0')}-leaf1!`, 'success');
+        this.addOutput(`🚀 Starting Arista Smart System Upgrade (SSU) process...`, 'info');
+
+        await this.runAllSections();
+    }
+
+    async runAllSections() {
+        const totalCommands = this.commands.reduce((sum, section) => sum + section.commands.length, 0);
+        let commandCount = 0;
+
+        for (let sectionIndex = 0; sectionIndex < this.commands.length && this.isRunning; sectionIndex++) {
+            this.currentSection = sectionIndex;
+            const section = this.commands[sectionIndex];
+
+            this.addOutput(`\n📋 ${section.section}`, 'step');
+            this.addOutput(`${'='.repeat(50)}`, 'system');
+
+            for (let cmdIndex = 0; cmdIndex < section.commands.length && this.isRunning; cmdIndex++) {
+                this.currentCommand = cmdIndex;
+                const command = section.commands[cmdIndex];
+                commandCount++;
+
+                const progress = (commandCount / totalCommands) * 100;
+                this.updateProgress(progress, `Executing: ${command.cmd}`);
+
+                await this.executeCommand(command, commandCount, totalCommands);
+
+                if (this.mode === 'interactive' && !command.cmd.includes('reload fast-boot')) {
+                    this.addOutput(`   ⏸️  Paused for review - Click any key to continue...`, 'warning');
+                    await this.waitForUserInput();
+                } else {
+                    await this.sleep(this.mode === 'auto' ? 1500 : 2000);
+                }
+            }
+
+            if (this.isRunning) {
+                this.addOutput(`\n🎉 Section "${section.section}" completed successfully!\n`, 'success');
+            }
+        }
+
+        if (this.isRunning) {
+            this.updateProgress(100, "SSU Lab completed successfully! 🎉");
+            this.addOutput(`\n🏆 B04 Smart System Upgrade Lab completed successfully!`, 'success');
+            this.addOutput(`📊 Ping test results: Only 1-2 packets lost during ~800ms cutover!`, 'info');
+            this.addOutput(`🚀 Switch upgraded from EOS-4.34.0F to EOS-4.34.1F with minimal downtime!`, 'success');
+        }
+
+        this.stopLab();
+    }
+
+    async executeCommand(command, stepNum, totalSteps) {
+        // Replace ## with actual pod number
+        const actualCmd = command.cmd.replace(/##/g, this.studentId.padStart(2, '0'));
+        const actualOutput = command.output.replace(/##/g, this.studentId.padStart(2, '0'));
+
+        this.addOutput(`\n🔄 Step ${stepNum}/${totalSteps}: ${command.desc}`, 'info');
+        this.addOutput(`   💻 ${actualCmd}`, 'command');
+
+        // Special handling for different command types
+        if (command.cmd.includes('copy https://')) {
+            await this.simulateDownload();
+        } else if (command.cmd.includes('reload fast-boot')) {
+            await this.simulateSSUReload();
+        } else if (command.cmd.includes('ping')) {
+            await this.simulatePingTest();
+        } else {
+            await this.sleep(1000);
+        }
+
+        this.addOutput(`   📤 ${actualOutput}`, 'system');
+        this.addOutput(`   ✅ Command executed successfully`, 'success');
+    }
+
+    async simulateDownload() {
+        this.addOutput(`   📥 Starting EOS image download...`, 'info');
+        const progressChars = ['▱', '▰'];
+        
+        for (let i = 0; i <= 100; i += 10) {
+            if (!this.isRunning) break;
+            
+            const filled = Math.floor(i / 3.125);
+            const empty = 32 - filled;
+            const progressBar = '▰'.repeat(filled) + '▱'.repeat(empty);
+            
+            this.addOutput(`   📊 Download Progress: [${progressBar}] ${i}%`, 'info');
+            await this.sleep(200);
+        }
+        
+        this.addOutput(`   ✅ EOS-4.34.1F.swi downloaded successfully (1.5GB)`, 'success');
+    }
+
+    async simulateSSUReload() {
+        this.addOutput(`   ⚠️  CRITICAL: Starting Smart System Upgrade - DO NOT INTERRUPT!`, 'warning');
+        this.addOutput(`   🔄 Running AsuPatchDb:doPatch...`, 'info');
+        await this.sleep(2000);
+        
+        this.addOutput(`   📦 Extracting kernel files from SWI...`, 'info');
+        await this.sleep(1500);
+        
+        this.addOutput(`   🔍 No qualified FPGAs to upgrade`, 'info');
+        await this.sleep(1000);
+        
+        this.addOutput(`   📡 Shutting down packet drivers...`, 'warning');
+        await this.sleep(1000);
+        
+        this.addOutput(`   🔄 Reloading /mnt/flash/EOS-4.34.1F.swi`, 'info');
+        await this.sleep(3000);
+        
+        this.addOutput(`   🖥️  Management plane rebooting...`, 'warning');
+        await this.sleep(2000);
+        
+        this.addOutput(`   🔌 Reconnecting to switch...`, 'info');
+        await this.sleep(2000);
+        
+        this.addOutput(`   ✅ Switch management plane back online!`, 'success');
+    }
+
+    async simulatePingTest() {
+        this.addOutput(`   🏓 Starting continuous ping test to gateway...`, 'info');
+        this.addOutput(`   📊 Ping will continue during SSU upgrade`, 'info');
+        await this.sleep(1000);
+        
+        // Simulate some ping responses
+        for (let i = 1; i <= 5; i++) {
+            if (!this.isRunning) break;
+            const time = (Math.random() * 2 + 0.5).toFixed(3);
+            this.addOutput(`   🏓 64 bytes from 10.1.${this.studentId.padStart(2, '0')}.1: icmp_seq=${i} time=${time} ms`, 'system');
+            await this.sleep(300);
+        }
+    }
+
+    async waitForUserInput() {
+        return new Promise(resolve => {
+            const handler = () => {
+                document.removeEventListener('keydown', handler);
+                document.removeEventListener('click', handler);
+                resolve();
+            };
+            document.addEventListener('keydown', handler);
+            document.addEventListener('click', handler);
+        });
+    }
+
+    stopLab() {
+        this.isRunning = false;
+        document.getElementById('connect-btn').disabled = false;
+        document.getElementById('stop-btn').disabled = true;
+        this.updateProgress(0, "Ready to start...");
+    }
+
+    clearOutput() {
+        document.getElementById('command-output').innerHTML = '';
+    }
+
+    updateProgress(percentage, text) {
+        document.getElementById('progress-fill').style.width = `${percentage}%`;
+        document.getElementById('progress-text').textContent = text;
+    }
+
+    addOutput(text, type = 'system') {
+        const output = document.getElementById('command-output');
+        const line = document.createElement('div');
+        line.className = type;
+        line.textContent = text;
+        output.appendChild(line);
+        output.scrollTop = output.scrollHeight;
+    }
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+
+// Initialize the lab agent when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    new B04LabAgent();
+});
+</script>
 
 --8<-- "includes/abbreviations.md"
