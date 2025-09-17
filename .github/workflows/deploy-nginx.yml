@@ -83,32 +83,42 @@ jobs:
           echo "🔄 Updating site from GitHub..."
 
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            # Navigate to site directory
-            cd '${{ env.SERVER_PATH }}'
+            # Check if site directory exists
+            if [ -d '${{ env.SERVER_PATH }}' ]; then
+              echo '📁 Site directory exists, checking for git repository...'
+              cd '${{ env.SERVER_PATH }}'
 
-            # Check if it's a git repository
-            if [ -d '.git' ]; then
-              echo '📥 Pulling latest changes from gh-pages...'
+              # Check if it's a git repository
+              if [ -d '.git' ]; then
+                echo '📥 Pulling latest changes from gh-pages...'
 
-              # Fix git authentication issues
-              sudo git config credential.helper ''
-              sudo git config --unset-all credential.helper 2>/dev/null || true
+                # Fix git authentication issues
+                sudo git config credential.helper ''
+                sudo git config --unset-all credential.helper 2>/dev/null || true
 
-              # Try to fetch with no prompts
-              if sudo GIT_TERMINAL_PROMPT=0 git fetch origin 2>/dev/null; then
-                echo '✅ Git fetch successful'
-                sudo git reset --hard origin/gh-pages
-                sudo git clean -fd
+                # Try to fetch with no prompts
+                if sudo GIT_TERMINAL_PROMPT=0 git fetch origin 2>/dev/null; then
+                  echo '✅ Git fetch successful'
+                  sudo git reset --hard origin/gh-pages
+                  sudo git clean -fd
+                else
+                  echo '⚠️ Git fetch failed, re-cloning repository...'
+                  cd /var/www/
+                  sudo rm -rf '${{ env.SERVER_PATH }}.old'
+                  sudo mv '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.old'
+                  sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git '${{ env.SERVER_PATH }}'
+                fi
               else
-                echo '⚠️ Git fetch failed, re-cloning repository...'
+                echo '🆕 Directory exists but not a git repo, re-cloning...'
                 cd /var/www/
                 sudo rm -rf '${{ env.SERVER_PATH }}.old'
                 sudo mv '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.old'
                 sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git '${{ env.SERVER_PATH }}'
               fi
             else
-              echo '🆕 Cloning repository...'
-              sudo rm -rf '${{ env.SERVER_PATH }}'
+              echo '🆕 Site directory does not exist, creating and cloning repository...'
+              cd /var/www/
+              sudo mkdir -p \$(dirname '${{ env.SERVER_PATH }}')
               sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git '${{ env.SERVER_PATH }}'
             fi
 
@@ -122,22 +132,28 @@ jobs:
           echo "🧪 DRY RUN: Would update site from GitHub..."
 
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            cd '${{ env.SERVER_PATH }}'
+            if [ -d '${{ env.SERVER_PATH }}' ]; then
+              echo '📁 Site directory exists'
+              cd '${{ env.SERVER_PATH }}'
 
-            if [ -d '.git' ]; then
-              echo '🧪 Would run: git config credential.helper && git fetch origin && git reset --hard origin/gh-pages'
-              echo 'Current branch:' \$(git branch --show-current)
-              echo 'Current commit:' \$(git log -1 --oneline)
-              echo 'Remote status (if accessible):' \$(git status -uno 2>/dev/null || echo 'Git status unavailable')
+              if [ -d '.git' ]; then
+                echo '🧪 Would run: git config credential.helper && git fetch origin && git reset --hard origin/gh-pages'
+                echo 'Current branch:' \$(git branch --show-current)
+                echo 'Current commit:' \$(git log -1 --oneline)
+                echo 'Remote status (if accessible):' \$(git status -uno 2>/dev/null || echo 'Git status unavailable')
 
-              # Test if we can access remote
-              if sudo GIT_TERMINAL_PROMPT=0 git ls-remote origin gh-pages >/dev/null 2>&1; then
-                echo '✅ Remote access working'
+                # Test if we can access remote
+                if sudo GIT_TERMINAL_PROMPT=0 git ls-remote origin gh-pages >/dev/null 2>&1; then
+                  echo '✅ Remote access working'
+                else
+                  echo '⚠️ Remote access issue - would re-clone repository'
+                fi
               else
-                echo '⚠️ Remote access issue - would re-clone repository'
+                echo '🧪 Directory exists but not a git repo - would re-clone'
               fi
             else
-              echo '🧪 Would clone: git clone -b gh-pages https://github.com/${{ github.repository }}.git'
+              echo '🧪 Site directory does not exist - would create and clone'
+              echo '🧪 Would run: mkdir -p \$(dirname ${{ env.SERVER_PATH }}) && git clone -b gh-pages https://github.com/${{ github.repository }}.git'
             fi
           "
 
@@ -218,12 +234,20 @@ jobs:
               echo \"⚠️ Local site returned HTTP \$HTTP_CODE\"
             fi
 
-            # Test if index.html exists
-            if [ -f '${{ env.SERVER_PATH }}/index.html' ]; then
-              echo '✅ index.html found'
+            # Test if site directory and index.html exist
+            if [ -d '${{ env.SERVER_PATH }}' ]; then
+              echo '✅ Site directory exists'
+              if [ -f '${{ env.SERVER_PATH }}/index.html' ]; then
+                echo '✅ index.html found'
+              else
+                echo '❌ index.html not found'
+                echo 'Directory contents:'
+                ls -la '${{ env.SERVER_PATH }}/' || echo 'Cannot list directory contents'
+              fi
             else
-              echo '❌ index.html not found'
-              ls -la '${{ env.SERVER_PATH }}/'
+              echo '❌ Site directory does not exist: ${{ env.SERVER_PATH }}'
+              echo 'Available directories in /var/www/:'
+              ls -la /var/www/ || echo 'Cannot list /var/www/ contents'
             fi
           "
 
