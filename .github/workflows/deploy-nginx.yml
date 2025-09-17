@@ -94,9 +94,9 @@ jobs:
               if [ -d '${{ env.SERVER_PATH }}/2025.1.STL' ]; then
                 echo '🎯 Mike versioning detected - updating content within version directory...'
 
-                # Clone fresh content to temporary directory (public repo, no auth needed)
+                # Clone fresh content to temporary directory using SSH
                 TEMP_DIR=\"/tmp/wwt-docs-update-\$(date +%s)\"
-                git clone -b gh-pages https://github.com/${{ github.repository }}.git \"\$TEMP_DIR\"
+                git clone -b gh-pages git@github.com:${{ github.repository }}.git \"\$TEMP_DIR\"
 
                 if [ -d \"\$TEMP_DIR\" ]; then
                   echo '📥 Fresh content cloned to temporary directory'
@@ -127,14 +127,14 @@ jobs:
                 else
                   cd /var/www/
                   sudo mv '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.old'
-                  sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git '${{ env.SERVER_PATH }}'
+                  sudo git clone -b gh-pages git@github.com:${{ github.repository }}.git '${{ env.SERVER_PATH }}'
                 fi
               fi
             else
               echo '🆕 Site directory does not exist, creating and cloning repository...'
               cd /var/www/
               sudo mkdir -p \$(dirname '${{ env.SERVER_PATH }}')
-              sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git '${{ env.SERVER_PATH }}'
+              sudo git clone -b gh-pages git@github.com:${{ github.repository }}.git '${{ env.SERVER_PATH }}'
             fi
 
             echo '✅ Site updated from GitHub'
@@ -168,7 +168,7 @@ jobs:
               fi
             else
               echo '🧪 Site directory does not exist - would create and clone'
-              echo '🧪 Would run: mkdir -p \$(dirname ${{ env.SERVER_PATH }}) && git clone -b gh-pages https://github.com/${{ github.repository }}.git'
+              echo '🧪 Would run: mkdir -p \$(dirname ${{ env.SERVER_PATH }}) && git clone -b gh-pages git@github.com:${{ github.repository }}.git'
             fi
           "
 
