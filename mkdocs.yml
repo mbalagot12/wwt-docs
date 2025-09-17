@@ -1,5 +1,6 @@
 site_name: Arista Campus Workshop
 site_description: Arista Campus Workshop
+# Updated lab documentation from presidio-docs - testing CI/CD pipeline
 watch: ["docs", "mkdocs.yml"]
 
 nav:
