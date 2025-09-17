@@ -2,14 +2,14 @@
 name: Deploy to Nginx Server
 
 on:
-  # Temporarily disabled automatic trigger to prevent overwriting Mike versioned site
-  # workflow_run:
-  #   workflows: ["Deploy Documentation"]
-  #   types:
-  #     - completed
-  #   branches: [main]
+  # Automatic deployment when GitHub Pages deployment completes
+  workflow_run:
+    workflows: ["Deploy Documentation"]
+    types:
+      - completed
+    branches: [main]
 
-  # Manual trigger for nginx deployment
+  # Manual trigger for nginx deployment (with options)
   workflow_dispatch:
     inputs:
       server_host:
@@ -33,7 +33,9 @@ env:
 jobs:
   deploy-to-nginx:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    # Run for both automatic (workflow_run) and manual (workflow_dispatch) triggers
+    # Skip if the triggering workflow failed (for workflow_run events)
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     
     steps:
       - name: Checkout repository
@@ -56,7 +58,7 @@ jobs:
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "echo 'Connection successful'"
 
       - name: Backup current site
-        if: github.event.inputs.dry_run != 'true'
+        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
         run: |
           SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "💾 Creating backup of current site..."
@@ -71,14 +73,14 @@ jobs:
           "
 
       - name: Dry run - Backup simulation
-        if: github.event.inputs.dry_run == 'true'
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
         run: |
           SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🧪 DRY RUN: Would create backup of current site..."
           echo "Command: sudo cp -r '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.backup.$(date +%Y%m%d_%H%M%S)'"
 
       - name: Update site from GitHub
-        if: github.event.inputs.dry_run != 'true'
+        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
         run: |
           SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🔄 Updating site from GitHub..."
@@ -127,7 +129,7 @@ jobs:
           "
 
       - name: Dry run - Update simulation
-        if: github.event.inputs.dry_run == 'true'
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
         run: |
           SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🧪 DRY RUN: Would update site from GitHub..."
@@ -159,7 +161,7 @@ jobs:
           "
 
       - name: Set proper permissions
-        if: github.event.inputs.dry_run != 'true'
+        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
         run: |
           SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🔐 Setting proper permissions..."
@@ -172,7 +174,7 @@ jobs:
           "
 
       - name: Dry run - Permissions simulation
-        if: github.event.inputs.dry_run == 'true'
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
         run: |
           SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🧪 DRY RUN: Would set proper permissions..."
@@ -197,7 +199,7 @@ jobs:
           "
 
       - name: Reload nginx
-        if: github.event.inputs.dry_run != 'true'
+        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
         run: |
           SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🔄 Reloading nginx..."
@@ -209,7 +211,7 @@ jobs:
           "
 
       - name: Dry run - Nginx reload simulation
-        if: github.event.inputs.dry_run == 'true'
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
         run: |
           SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
           echo "🧪 DRY RUN: Would reload nginx..."
