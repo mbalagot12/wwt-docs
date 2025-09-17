@@ -86,37 +86,49 @@ jobs:
           echo "🔄 Updating site from GitHub..."
 
           ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            # Check if site directory exists
+            # Check if site directory exists and has Mike versioning
             if [ -d '${{ env.SERVER_PATH }}' ]; then
-              echo '📁 Site directory exists, checking for git repository...'
-              cd '${{ env.SERVER_PATH }}'
+              echo '📁 Site directory exists, checking for Mike versioning...'
 
-              # Check if it's a git repository
-              if [ -d '.git' ]; then
-                echo '📥 Pulling latest changes from gh-pages...'
+              # Check if Mike versioning structure exists (2025.1.STL directory)
+              if [ -d '${{ env.SERVER_PATH }}/2025.1.STL' ]; then
+                echo '🎯 Mike versioning detected - updating content within version directory...'
 
-                # Fix git authentication issues
-                sudo git config credential.helper ''
-                sudo git config --unset-all credential.helper 2>/dev/null || true
+                # Clone fresh content to temporary directory
+                TEMP_DIR='/tmp/wwt-docs-update-\$(date +%s)'
+                sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git \$TEMP_DIR
 
-                # Try to fetch with no prompts
-                if sudo GIT_TERMINAL_PROMPT=0 git fetch origin 2>/dev/null; then
-                  echo '✅ Git fetch successful'
-                  sudo git reset --hard origin/gh-pages
-                  sudo git clean -fd
+                if [ -d \"\$TEMP_DIR\" ]; then
+                  echo '📥 Fresh content cloned to temporary directory'
+
+                  # Update only the 2025.1.STL content, preserving Mike structure
+                  if [ -d \"\$TEMP_DIR/2025.1.STL\" ]; then
+                    echo '🔄 Updating 2025.1.STL content...'
+                    sudo rsync -av --delete \"\$TEMP_DIR/2025.1.STL/\" '${{ env.SERVER_PATH }}/2025.1.STL/'
+                    echo '✅ Version content updated'
+                  else
+                    echo '⚠️ No 2025.1.STL in fresh clone - using root content'
+                    sudo rsync -av --delete --exclude=versions.json \"\$TEMP_DIR/\" '${{ env.SERVER_PATH }}/2025.1.STL/'
+                  fi
+
+                  # Clean up temporary directory
+                  sudo rm -rf \$TEMP_DIR
                 else
-                  echo '⚠️ Git fetch failed, re-cloning repository...'
+                  echo '❌ Failed to clone fresh content'
+                  exit 1
+                fi
+              else
+                echo '🆕 No Mike versioning - performing full update...'
+                cd '${{ env.SERVER_PATH }}'
+
+                # Standard git update for non-Mike sites
+                if [ -d '.git' ]; then
+                  sudo git fetch origin && sudo git reset --hard origin/gh-pages
+                else
                   cd /var/www/
-                  sudo rm -rf '${{ env.SERVER_PATH }}.old'
                   sudo mv '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.old'
                   sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git '${{ env.SERVER_PATH }}'
                 fi
-              else
-                echo '🆕 Directory exists but not a git repo, re-cloning...'
-                cd /var/www/
-                sudo rm -rf '${{ env.SERVER_PATH }}.old'
-                sudo mv '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.old'
-                sudo git clone -b gh-pages https://github.com/${{ github.repository }}.git '${{ env.SERVER_PATH }}'
               fi
             else
               echo '🆕 Site directory does not exist, creating and cloning repository...'
