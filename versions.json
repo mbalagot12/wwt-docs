@@ -1,5 +1,12 @@
 [
   {
+    "version": "2025.09.5999fc8",
+    "title": "2025.09.5999fc8",
+    "aliases": [
+      "Auto-deployment 2025-09-19 20:24"
+    ]
+  },
+  {
     "version": "2025.09.35cb0ae",
     "title": "2025.09.35cb0ae",
     "aliases": [
@@ -31,18 +38,18 @@
     "version": "2025.1.STL",
     "title": "2025.1.STL",
     "aliases": [
-      "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi",
-      "latest",
-      "Fix CVaaS Orgname column position in access.md table",
-      "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
       "Update login_cv.md content",
-      "Complete login_cv.md update: buttons, images, and tab titles",
       "Force update latest 00_cvaas_login_new.png image",
       "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
-      "Final login_cv.md update: CVaaS button with org name instruction",
+      "Fix c03_lab.md snippet inclusion syntax",
+      "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
+      "Fix CVaaS Orgname column position in access.md table",
+      "Complete login_cv.md update: buttons, images, and tab titles",
       "Add CVaaS Orgname column to lab assignment tables",
+      "Final login_cv.md update: CVaaS button with org name instruction",
       "Update login_cv.md: Add buttons, update tab titles, and new images",
-      "Fix c03_lab.md snippet inclusion syntax"
+      "latest",
+      "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi"
     ]
   }
 ]
