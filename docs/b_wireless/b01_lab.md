@@ -309,7 +309,7 @@ In this section of the lab, we will be working in the `WiFi` configuration area.
 
 3. Once on the `SSID` page, configuration sub-category menu options will appear across the top of the page related to WiFi (the defaults are `Basic`, `Security`, and `Network`). You can click on these sub-category names to change configuration items related to that area of the configuration.
 
-4. To make additional categories visible, click on the 3 dots :material-dots-horizontal: next to `Network` and you can see the other categories that are available to configure (`Wifi7`,`Access Controls`, `Captive Portal`, etc.).
+4. To make additional categories visible, click on the 3 dots :material-dots-horizontal: next to `Network` and you can see the other categories that are available to configure (`WiFi7`,`Access Controls`, `Captive Portal`, etc.).
 
     ![Campus Studio](./assets/images/b01/wifi/03_wifi.png)
 

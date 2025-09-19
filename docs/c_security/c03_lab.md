@@ -21,10 +21,9 @@ docs/snippets/topology.md
 
 ??? tip "Reminder on logging in and creating a workspace"
 
-    --8<--
-    docs/snippets/login_cv.md
-    docs/snippets/workspace.md
-    --8<--
+    --8<-- "docs/snippets/login_cv.md"
+
+    --8<-- "docs/snippets/workspace.md"
 
 ## Update Port Profile
 

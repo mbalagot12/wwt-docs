@@ -294,7 +294,7 @@ To highlight Arista's Controller-less Architecture we will use the labs spine ML
 
     ![Dashboard](./assets/images/b03/04_tunnel.png)
 
-### Review VXLAN on spine1 or spine2 in CVaas
+### Review VXLAN on spine1 or spine2 in CVaaS
 
 Screenshot shows VLAN200 mapped to VNI10200 and VXLAN clients with VLAN200 IPs
 

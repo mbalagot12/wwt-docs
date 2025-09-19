@@ -28,7 +28,7 @@ The hardware you see sitting in front of you can
 
     ---
 
-    Except for CVaas, each pod will be provided their own instance of:
+    Except for CVaaS, each pod will be provided their own instance of:
 
       - [x] **Arista CloudVision as a Service (CVaaS)** - Our management, orchestration, and visibility
       - [x] **Arista CloudVision Cognitive Unified Edge (CV-CUE)** - Our wireless management, orchestration, and visibility
@@ -61,18 +61,18 @@ The hardware you see sitting in front of you can
 
     You will work in collaboration with your fellow student, keep this information handy
 
-      - [x] Student a or b. See Lab Assignment
+      - [x] Student##. See Lab Assignment
       - [x] Your POD number. See Lab Assignment
       - [x] Your assigned spine login. See Lab Assignment
-      - [x] Your LOGIN ID to Arista Launchpad. Your corporate email address
-      - [x] Your PASSWORD. Emailed to you upon Arista Launchpad account creation
+      - [x] Your LOGIN ID to Arista Launchpad and CVaaS. Your corporate email address
+      - [x] Your PASSWORD. Emailed to you upon Arista Launchpad account creation. CVaaS. No need. It uses SSO.
 
 </div>
 
 ## Lab Assignment
 
 <div class="grid cards" markdown>
- {{ read_csv('data/lab_assignment.csv',colalign=("left","center","center"), usecols=['Email','Lab Assignment','Student Pod #']) }}
+ {{ read_csv('data/lab_assignment.csv',colalign=("left","center","center","center"), usecols=['Email','CVaaS Orgname','Lab Assignment','Student Pod #']) }}
 </div>
 
 --8<--

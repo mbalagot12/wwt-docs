@@ -30,7 +30,7 @@ Login into CV-CUE to begin this lab, you will create the AP tunnel.
 
 ### Assign SSID to Tunnel Profile
 
-1. Under the `Configure` section, click on `Wifi`
+1. Under the `Configure` section, click on `WiFi`
 2. Select the correct location in your hierarchy
 3. Select the pencil to edit Guest SSID
 4. Select `Network`
@@ -42,7 +42,7 @@ Login into CV-CUE to begin this lab, you will create the AP tunnel.
 
 ## Monitor Tunnels
 
-1. Under the `Monitor` section, click on `Wifi`
+1. Under the `Monitor` section, click on `WiFi`
 2. Verify your location in the hierarchy
 3. Click on `Tunnels` or the tunnel icon on the top row
 
