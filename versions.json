@@ -32,7 +32,8 @@
     "title": "2025.1.STL",
     "aliases": [
       "Update login_cv.md content",
-      "latest"
+      "latest",
+      "Add CVaaS Orgname column to lab assignment tables"
     ]
   }
 ]
