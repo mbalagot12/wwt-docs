@@ -33,13 +33,14 @@
     "aliases": [
       "Final login_cv.md update: CVaaS button with org name instruction",
       "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
-      "Add CVaaS Orgname column to lab assignment tables",
-      "latest",
-      "Force update latest 00_cvaas_login_new.png image",
       "Fix CVaaS Orgname column position in access.md table",
-      "Update login_cv.md: Add buttons, update tab titles, and new images",
+      "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
+      "Force update latest 00_cvaas_login_new.png image",
       "Update login_cv.md content",
-      "Complete login_cv.md update: buttons, images, and tab titles"
+      "latest",
+      "Update login_cv.md: Add buttons, update tab titles, and new images",
+      "Complete login_cv.md update: buttons, images, and tab titles",
+      "Add CVaaS Orgname column to lab assignment tables"
     ]
   }
 ]
