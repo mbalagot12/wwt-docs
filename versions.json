@@ -31,12 +31,13 @@
     "version": "2025.1.STL",
     "title": "2025.1.STL",
     "aliases": [
-      "Update login_cv.md content",
+      "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
       "Fix CVaaS Orgname column position in access.md table",
-      "Update login_cv.md: Add buttons, update tab titles, and new images",
-      "Add CVaaS Orgname column to lab assignment tables",
+      "Final login_cv.md update: CVaaS button with org name instruction",
+      "Update login_cv.md content",
       "latest",
-      "Update CVaaS login image to 00_cvaas_login_new.png for better page fit"
+      "Add CVaaS Orgname column to lab assignment tables",
+      "Update login_cv.md: Add buttons, update tab titles, and new images"
     ]
   }
 ]
