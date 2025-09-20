@@ -1,0 +1,126 @@
+name: Emergency Site Restore
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_location:
+        description: 'Backup location to restore from'
+        required: false
+        default: '/var/backups/wwt-acws.duckdns.org'
+        type: string
+
+jobs:
+  emergency-restore:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.NGINX_SERVER_SSH_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ec2-3-140-61-206.us-east-2.compute.amazonaws.com >> ~/.ssh/known_hosts
+
+      - name: Check current directory status
+        run: |
+          echo "🔍 Checking current site directory..."
+          ssh ubuntu@ec2-3-140-61-206.us-east-2.compute.amazonaws.com "
+            echo 'Current directory contents:'
+            ls -la /var/www/wwt-acws.duckdns.org/
+            echo ''
+            echo 'Directory size:'
+            du -sh /var/www/wwt-acws.duckdns.org/
+          "
+
+      - name: Find available backups
+        run: |
+          echo "🔍 Looking for available backups..."
+          ssh ubuntu@ec2-3-140-61-206.us-east-2.compute.amazonaws.com "
+            echo 'Checking common backup locations:'
+            echo '1. /var/backups/wwt-acws.duckdns.org:'
+            ls -la /var/backups/wwt-acws.duckdns.org* 2>/dev/null || echo 'Not found'
+            echo ''
+            echo '2. /home/ubuntu/backups:'
+            ls -la /home/ubuntu/backups/ 2>/dev/null || echo 'Not found'
+            echo ''
+            echo '3. /tmp/backup*:'
+            ls -la /tmp/backup* 2>/dev/null || echo 'Not found'
+            echo ''
+            echo '4. Looking for any wwt-acws backup files:'
+            find /var /home/ubuntu /tmp -name '*wwt-acws*' -type f 2>/dev/null | head -10 || echo 'No backup files found'
+          "
+
+      - name: Restore from backup
+        run: |
+          BACKUP_LOCATION="${{ github.event.inputs.backup_location }}"
+          echo "🚨 EMERGENCY RESTORE from: $BACKUP_LOCATION"
+          
+          ssh ubuntu@ec2-3-140-61-206.us-east-2.compute.amazonaws.com "
+            # Check if backup exists
+            if [ -f '$BACKUP_LOCATION.tar.gz' ]; then
+              echo '✅ Found compressed backup: $BACKUP_LOCATION.tar.gz'
+              cd /var/www/
+              sudo rm -rf wwt-acws.duckdns.org/*
+              sudo tar -xzf '$BACKUP_LOCATION.tar.gz' -C wwt-acws.duckdns.org/
+              echo '📦 Backup restored from compressed archive'
+            elif [ -d '$BACKUP_LOCATION' ]; then
+              echo '✅ Found backup directory: $BACKUP_LOCATION'
+              sudo rm -rf /var/www/wwt-acws.duckdns.org/*
+              sudo cp -r '$BACKUP_LOCATION'/* /var/www/wwt-acws.duckdns.org/
+              echo '📁 Backup restored from directory'
+            else
+              echo '❌ Backup not found at: $BACKUP_LOCATION'
+              echo 'Available options:'
+              find /var /home/ubuntu /tmp -name '*wwt*' -o -name '*backup*' 2>/dev/null | head -20
+              exit 1
+            fi
+            
+            # Set proper permissions
+            sudo chown -R www-data:www-data /var/www/wwt-acws.duckdns.org/
+            sudo chmod -R 755 /var/www/wwt-acws.duckdns.org/
+            
+            # Reload nginx
+            sudo systemctl reload nginx
+            
+            echo '✅ Backup restored and nginx reloaded'
+            echo 'New directory contents:'
+            ls -la /var/www/wwt-acws.duckdns.org/ | head -10
+            echo 'Directory size:'
+            du -sh /var/www/wwt-acws.duckdns.org/
+          "
+
+      - name: Test site accessibility
+        run: |
+          echo "🔍 Testing restored site..."
+          sleep 10  # Give nginx a moment
+          
+          if curl -s -f "https://wwt-acws.duckdns.org/" > /dev/null; then
+            echo "✅ Main site restored and accessible!"
+          else
+            echo "⚠️ Main site not immediately accessible"
+          fi
+          
+          if curl -s -f "https://wwt-acws.duckdns.org/2025.1.STL/" > /dev/null; then
+            echo "✅ Version 2025.1.STL restored and accessible!"
+          else
+            echo "⚠️ Version 2025.1.STL not immediately accessible"
+          fi
+
+      - name: Create restore summary
+        run: |
+          echo "## 🚨 Emergency Restore Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backup Source**: ${{ github.event.inputs.backup_location }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Restore Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Site restored from backup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Test URLs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Main Site**: https://wwt-acws.duckdns.org/" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version 2025.1.STL**: https://wwt-acws.duckdns.org/2025.1.STL/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ⚠️ Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Test the restored site thoroughly" >> $GITHUB_STEP_SUMMARY
+          echo "2. Once GitHub Pages is restored, normal deployments will resume" >> $GITHUB_STEP_SUMMARY
+          echo "3. Consider creating fresh backups after confirming site works" >> $GITHUB_STEP_SUMMARY
