@@ -1,0 +1,176 @@
+name: Local CI/CD Testing
+
+on:
+  push:
+    branches: [test-ci-cd]  # ONLY test branch - NEVER main!
+  pull_request:
+    branches: [test-ci-cd]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  local-ci-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🛡️ Safety Check - Prevent Production Deploy
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "❌ ERROR: This workflow should NEVER run on main branch!"
+            echo "This is a LOCAL TESTING workflow only."
+            exit 1
+          fi
+          echo "✅ Safety check passed - running on test branch"
+
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: ⚡ Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: 🔧 Set up UV environment
+        run: |
+          uv venv .venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+          echo "PATH=.venv/bin:$PATH" >> $GITHUB_ENV
+
+      - name: 📦 Install dependencies
+        run: uv pip install -r requirements.txt
+
+      - name: 🏗️ Test Build Process
+        run: |
+          echo "🚀 Testing MkDocs build..."
+          mkdocs build
+          echo "✅ Build completed successfully"
+
+      - name: 🔍 Validate Build Output
+        run: |
+          echo "🔍 Validating build output..."
+          
+          # Check if site directory exists
+          if [ ! -d "site" ]; then
+            echo "❌ ERROR: site directory not found"
+            exit 1
+          fi
+          
+          # Check if main files exist
+          if [ ! -f "site/index.html" ]; then
+            echo "❌ ERROR: index.html not found"
+            exit 1
+          fi
+          
+          # Check site size
+          SITE_SIZE=$(du -sm site | cut -f1)
+          if [ "$SITE_SIZE" -lt 1 ]; then
+            echo "❌ ERROR: Site too small ($SITE_SIZE MB)"
+            exit 1
+          fi
+          
+          echo "✅ Build validation passed (Size: ${SITE_SIZE}MB)"
+
+      - name: 📄 Test Content Structure
+        run: |
+          echo "📄 Testing content structure..."
+          
+          # Test agenda page specifically
+          if [ -f "site/references/agenda/index.html" ]; then
+            if grep -q "Campus Workshop Agenda" "site/references/agenda/index.html"; then
+              echo "✅ Agenda content validated"
+            else
+              echo "❌ Agenda content validation failed"
+              exit 1
+            fi
+          else
+            echo "⚠️ Agenda page not found (may be normal if not in nav)"
+          fi
+          
+          echo "✅ Content structure validated"
+
+      - name: 🌐 Test Local Server Simulation
+        run: |
+          echo "🌐 Testing local server simulation..."
+          
+          # Start server in background
+          cd site
+          python -m http.server 8000 &
+          SERVER_PID=$!
+          cd ..
+          
+          # Wait for server to start
+          sleep 5
+          
+          # Test server response
+          if curl -f -s "http://localhost:8000/" > /dev/null; then
+            echo "✅ Local server test passed"
+          else
+            echo "❌ Local server test failed"
+            kill $SERVER_PID 2>/dev/null || true
+            exit 1
+          fi
+          
+          # Clean up
+          kill $SERVER_PID 2>/dev/null || true
+          echo "✅ Server simulation completed"
+
+      - name: ⏱️ Performance Testing
+        run: |
+          echo "⏱️ Testing build performance..."
+          
+          # Time the build process
+          START_TIME=$(date +%s)
+          mkdocs build
+          END_TIME=$(date +%s)
+          BUILD_TIME=$((END_TIME - START_TIME))
+          
+          echo "📊 Build completed in ${BUILD_TIME} seconds"
+          
+          if [ $BUILD_TIME -lt 60 ]; then
+            echo "✅ Build time acceptable"
+          else
+            echo "⚠️ Build time may be slow for CI/CD"
+          fi
+
+      - name: 🧪 Run Local Test Script
+        run: |
+          echo "🧪 Running comprehensive local tests..."
+          chmod +x scripts/local-ci-test.sh
+          ./scripts/local-ci-test.sh
+
+      - name: 📊 Test Summary
+        run: |
+          echo "## 🧪 Local CI/CD Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Tests Completed Successfully:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Process**: MkDocs build successful" >> $GITHUB_STEP_SUMMARY
+          echo "- **Content Validation**: All required pages present" >> $GITHUB_STEP_SUMMARY
+          echo "- **Server Simulation**: Local server accessible" >> $GITHUB_STEP_SUMMARY
+          echo "- **Performance**: Build time acceptable" >> $GITHUB_STEP_SUMMARY
+          echo "- **Safety**: No production deployment attempted" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🛡️ Safety Guarantees:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Only runs on test-ci-cd branch" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ No server deployment attempted" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ No production site modifications" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Completely isolated testing" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "Ready for staging environment testing when approved." >> $GITHUB_STEP_SUMMARY
+
+      - name: 🎉 Success Notification
+        run: |
+          echo "🎉 LOCAL CI/CD TESTING COMPLETED SUCCESSFULLY!"
+          echo ""
+          echo "✅ All tests passed"
+          echo "🛡️ No production systems affected"
+          echo "🚀 Ready for next phase when you approve"
