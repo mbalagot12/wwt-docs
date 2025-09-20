@@ -82,6 +82,9 @@ jobs:
           echo "🚀 Deploying to version: $VERSION"
           echo "📝 Description: $DESCRIPTION"
 
+          # Fetch latest gh-pages to avoid conflicts
+          git fetch origin gh-pages:gh-pages || echo "No existing gh-pages branch"
+
           # Deploy to the target version (this updates existing version)
           mike deploy "$VERSION" "$DESCRIPTION" --push
 
