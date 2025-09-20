@@ -5,13 +5,13 @@
 Day 1 | Wired and Wireless
 8:30 - 8:55 |Intros
 9:00-9:25 | Overview of Arista Campus Architecture
-9:30-10:30 | Labs: Arista CloudVision for Campus - Build the Campus Fabric
+9:30-10:30 | Demo: Build the Campus Fabric
 Wired Lab | A-03: Access Interface Configuration
 10:35 - 11:55 | Labs: Arista Wireless with CV-CUE - Build the Wireless Fabric
 Wireless Lab | B-01: Wireless Setup
 Wireless Lab | B-02: Troubleshooting WiFi
 12:00pm - 12:50pm | Lunch-and-Learn
-Overview of Arista Zero Trust Networking Security | Remote Presentation
+Overview of Arista Zero Trust Networking Security-Presentation
 1:00 - 1:25 | Q&A and Recap of the morning sessions
 1:30 - 2:25 | Labs: Guest Wireless and Hitless Upgrade
 Wireless Lab | B-03: Guest WiFi with AGNI
