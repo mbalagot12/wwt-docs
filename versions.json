@@ -52,20 +52,21 @@
     "version": "2025.1.STL",
     "title": "2025.1.STL",
     "aliases": [
-      "Force update latest 00_cvaas_login_new.png image",
       "Complete login_cv.md update: buttons, images, and tab titles",
-      "latest",
-      "Force refresh: c02_lab.md update and login_cvcue.md snippet processing",
       "Final login_cv.md update: CVaaS button with org name instruction",
-      "Manual content update",
+      "latest",
       "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
-      "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi",
-      "Fix CVaaS Orgname column position in access.md table",
-      "Fix c03_lab.md snippet inclusion syntax",
       "Update login_cv.md: Add buttons, update tab titles, and new images",
       "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
+      "Force update latest 00_cvaas_login_new.png image",
       "Add CVaaS Orgname column to lab assignment tables",
-      "Update login_cv.md content"
+      "Force refresh: c02_lab.md update and login_cvcue.md snippet processing",
+      "Update login_cv.md content",
+      "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi",
+      "Manual content update",
+      "Fix CVaaS Orgname column position in access.md table",
+      "Fix c03_lab.md snippet inclusion syntax",
+      "Auto-update 2025-09-20 13:07"
     ]
   }
 ]
