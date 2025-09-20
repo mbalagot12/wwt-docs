@@ -52,22 +52,23 @@
     "version": "2025.1.STL",
     "title": "2025.1.STL",
     "aliases": [
-      "Auto-update 2025-09-20 13:07",
-      "Complete login_cv.md update: buttons, images, and tab titles",
-      "Update login_cv.md content",
       "Update login_cv.md: Add buttons, update tab titles, and new images",
-      "Final login_cv.md update: CVaaS button with org name instruction",
-      "Force refresh: c02_lab.md update and login_cvcue.md snippet processing",
-      "Force update latest 00_cvaas_login_new.png image",
-      "latest",
-      "Auto-update 2025-09-20 13:08",
-      "Manual content update",
-      "Add CVaaS Orgname column to lab assignment tables",
-      "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
       "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi",
-      "Fix c03_lab.md snippet inclusion syntax",
+      "Fix CVaaS Orgname column position in access.md table",
+      "Final login_cv.md update: CVaaS button with org name instruction",
+      "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
+      "Add CVaaS Orgname column to lab assignment tables",
+      "Force update latest 00_cvaas_login_new.png image",
+      "Manual content update",
+      "Auto-update 2025-09-20 13:07",
+      "Force refresh: c02_lab.md update and login_cvcue.md snippet processing",
+      "Emergency site restoration",
+      "latest",
+      "Update login_cv.md content",
       "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
-      "Fix CVaaS Orgname column position in access.md table"
+      "Auto-update 2025-09-20 13:08",
+      "Complete login_cv.md update: buttons, images, and tab titles",
+      "Fix c03_lab.md snippet inclusion syntax"
     ]
   }
 ]
