@@ -25,7 +25,7 @@ Let's create our new UPSK SSID by copying/modifying the PSK SSID we created in t
         | Student 1 | `ATD-##-PSK`  |
         | Student 2 | `ATD-##-PSK`  |
 
-    *where ## is a 2 digit character between 01-12 that was assigned to your lab/Pod*
+    *where ## is a 2 digit character between 01-20 that was assigned to your lab/Pod*
 
     ![Wireless EAP-TLS](./assets/images/c02/02_cue_ssid.png)
 
