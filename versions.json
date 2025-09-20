@@ -35,21 +35,28 @@
     ]
   },
   {
+    "version": "2025.09.c5b7937",
+    "title": "2025.09.c5b7937",
+    "aliases": [
+      "Auto-deployment 2025-09-20 11:30"
+    ]
+  },
+  {
     "version": "2025.1.STL",
     "title": "2025.1.STL",
     "aliases": [
-      "Update login_cv.md content",
-      "Force update latest 00_cvaas_login_new.png image",
-      "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
-      "Fix c03_lab.md snippet inclusion syntax",
-      "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
-      "Fix CVaaS Orgname column position in access.md table",
+      "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi",
       "Complete login_cv.md update: buttons, images, and tab titles",
-      "Add CVaaS Orgname column to lab assignment tables",
-      "Final login_cv.md update: CVaaS button with org name instruction",
-      "Update login_cv.md: Add buttons, update tab titles, and new images",
+      "Update login_cv.md content",
       "latest",
-      "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi"
+      "Force update latest 00_cvaas_login_new.png image",
+      "Fix c03_lab.md snippet inclusion syntax",
+      "Fix CVaaS Orgname column position in access.md table",
+      "Final login_cv.md update: CVaaS button with org name instruction",
+      "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
+      "Update login_cv.md: Add buttons, update tab titles, and new images",
+      "Add CVaaS Orgname column to lab assignment tables",
+      "Update CVaaS login image to 00_cvaas_login_new.png for better page fit"
     ]
   }
 ]
