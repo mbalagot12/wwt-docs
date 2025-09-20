@@ -1,4 +1,5 @@
 # Campus Workshop Agenda
+<!-- Testing bulletproof CI/CD pipeline -->
 
 | Time | Activity |
 | --- | --- |
