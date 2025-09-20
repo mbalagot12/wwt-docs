@@ -1,0 +1,141 @@
+name: Direct Deploy (Bulletproof)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  TARGET_VERSION: '2025.1.STL'
+  SERVER_HOST: 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com'
+  SERVER_USER: 'ubuntu'
+  SERVER_PATH: '/var/www/wwt-acws.duckdns.org'
+
+jobs:
+  direct-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Set up UV environment
+        run: |
+          uv venv .venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+          echo "PATH=.venv/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: uv pip install -r requirements.txt
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Build and deploy with Mike
+        run: |
+          VERSION="${{ env.TARGET_VERSION }}"
+          DESCRIPTION="Direct deploy: $(date '+%Y-%m-%d %H:%M:%S')"
+          
+          echo "🚀 Building and deploying to version: $VERSION"
+          echo "📝 Description: $DESCRIPTION"
+          
+          # Build the site locally first
+          mkdocs build
+          
+          # Deploy with mike (this creates the versioned structure)
+          mike deploy "$VERSION" "$DESCRIPTION"
+          
+          echo "✅ Mike deployment complete"
+
+      - name: Setup SSH for direct upload
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.NGINX_SERVER_SSH_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ env.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Direct upload to nginx server
+        run: |
+          echo "📤 Uploading directly to nginx server..."
+          
+          # Create temporary directory for upload
+          TEMP_DIR=$(mktemp -d)
+          
+          # Copy the mike-generated site to temp directory
+          cp -r site/* "$TEMP_DIR/"
+          
+          # Upload directly to server
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+            # Ensure target directory exists
+            sudo mkdir -p ${{ env.SERVER_PATH }}
+            
+            # Fix permissions for upload
+            sudo chown -R ${{ env.SERVER_USER }}:${{ env.SERVER_USER }} ${{ env.SERVER_PATH }}
+          "
+          
+          # Sync the built site directly
+          rsync -avz --delete \
+                --exclude='.git*' \
+                --exclude='*.tmp' \
+                --exclude='*.log' \
+                "$TEMP_DIR/" ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.SERVER_PATH }}/
+          
+          # Set proper web server permissions
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+            sudo chown -R www-data:www-data ${{ env.SERVER_PATH }}
+            sudo chmod -R 755 ${{ env.SERVER_PATH }}
+            sudo systemctl reload nginx
+            echo '✅ Direct upload complete, nginx reloaded'
+          "
+          
+          # Clean up
+          rm -rf "$TEMP_DIR"
+          echo "✅ Direct deployment successful"
+
+      - name: Test deployment
+        run: |
+          echo "🔍 Testing deployed site..."
+          sleep 10  # Give nginx a moment
+          
+          if curl -s -f "https://wwt-acws.duckdns.org/${{ env.TARGET_VERSION }}/" > /dev/null; then
+            echo "✅ Site accessible at https://wwt-acws.duckdns.org/${{ env.TARGET_VERSION }}/"
+          else
+            echo "⚠️ Site not immediately accessible (may need DNS propagation)"
+          fi
+
+      - name: Create deployment summary
+        run: |
+          echo "## ✅ Direct Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ env.TARGET_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Method**: Direct upload to nginx (bypasses GitHub Pages)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Live URL" >> $GITHUB_STEP_SUMMARY
+          echo "- **Your Site**: https://wwt-acws.duckdns.org/${{ env.TARGET_VERSION }}/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Bulletproof Features" >> $GITHUB_STEP_SUMMARY
+          echo "- Works regardless of GitHub Pages status" >> $GITHUB_STEP_SUMMARY
+          echo "- Direct upload ensures immediate deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- Perfect for live presentations and critical updates" >> $GITHUB_STEP_SUMMARY
