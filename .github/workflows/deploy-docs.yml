@@ -1,4 +1,4 @@
-# CI/CD Pipeline for WWT Docs with Mike Versioning
+# Simple and Reliable Documentation Deployment
 name: Deploy Documentation
 
 on:
@@ -9,109 +9,23 @@ on:
       - 'data/**'
       - 'mkdocs.yml'
       - 'requirements.txt'
-  
-  # Manual trigger with version input
+
+  # Manual trigger - simplified
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version to deploy (e.g., 2025.2.STL)'
-        required: true
-        default: '2025.1.STL'
       description:
-        description: 'Version description'
-        required: true
-        default: 'Manual deployment'
-      set_default:
-        description: 'Set as default version'
-        type: boolean
-        default: false
-      dry_run:
-        description: 'Dry run (test without deploying)'
-        type: boolean
-        default: false
-
-  # Automatic versioning on release tags
-  release:
-    types: [published]
+        description: 'Deployment description'
+        required: false
+        default: 'Manual content update'
 
 env:
   PYTHON_VERSION: '3.11'
-  UV_VERSION: '0.1.0'
+  TARGET_VERSION: '2025.1.STL'
 
 jobs:
-  detect-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      docs_changed: ${{ steps.changes.outputs.docs }}
-      data_changed: ${{ steps.changes.outputs.data }}
-      config_changed: ${{ steps.changes.outputs.config }}
-      should_deploy: ${{ steps.decision.outputs.should_deploy }}
-      version: ${{ steps.version.outputs.version }}
-      description: ${{ steps.version.outputs.description }}
-      is_dry_run: ${{ steps.decision.outputs.is_dry_run }}
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Detect file changes
-        uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            docs:
-              - 'docs/**'
-            data:
-              - 'data/**'
-            config:
-              - 'mkdocs.yml'
-              - 'requirements.txt'
-
-      - name: Determine deployment decision
-        id: decision
-        run: |
-          # Check if this is a dry run
-          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-            echo "is_dry_run=true" >> $GITHUB_OUTPUT
-            echo "should_deploy=true" >> $GITHUB_OUTPUT  # Allow dry run to proceed
-          else
-            echo "is_dry_run=false" >> $GITHUB_OUTPUT
-
-            if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || [[ "${{ github.event_name }}" == "release" ]]; then
-              echo "should_deploy=true" >> $GITHUB_OUTPUT
-            elif [[ "${{ steps.changes.outputs.docs }}" == "true" ]] || [[ "${{ steps.changes.outputs.data }}" == "true" ]] || [[ "${{ steps.changes.outputs.config }}" == "true" ]]; then
-              echo "should_deploy=true" >> $GITHUB_OUTPUT
-            else
-              echo "should_deploy=false" >> $GITHUB_OUTPUT
-            fi
-          fi
-
-      - name: Determine version and description
-        id: version
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-            echo "description=${{ github.event.inputs.description }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "release" ]]; then
-            # Extract version from release tag (e.g., v2025.2.STL -> 2025.2.STL)
-            VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "description=Release $VERSION" >> $GITHUB_OUTPUT
-          else
-            # Auto-generate version based on date and commit
-            DATE=$(date +%Y.%m)
-            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-            echo "version=${DATE}.${SHORT_SHA}" >> $GITHUB_OUTPUT
-            echo "description=Auto-deployment $(date '+%Y-%m-%d %H:%M')" >> $GITHUB_OUTPUT
-          fi
-
   deploy:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
       pages: write
@@ -122,7 +36,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.WWT_DOCS_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -149,160 +63,50 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-      - name: Check for protected version
-        id: protection_check
+      - name: Determine deployment description
+        id: description
         run: |
-          VERSION="${{ needs.detect-changes.outputs.version }}"
-          PROTECTED_VERSIONS=("2025.1.STL")
-          
-          for protected in "${PROTECTED_VERSIONS[@]}"; do
-            if [[ "$VERSION" == "$protected" ]]; then
-              echo "is_protected=true" >> $GITHUB_OUTPUT
-              echo "⚠️ Warning: Attempting to deploy protected version $VERSION"
-              exit 0
-            fi
-          done
-          echo "is_protected=false" >> $GITHUB_OUTPUT
-
-      - name: Deploy with Mike
-        if: steps.protection_check.outputs.is_protected == 'false'
-        run: |
-          VERSION="${{ needs.detect-changes.outputs.version }}"
-          DESCRIPTION="${{ needs.detect-changes.outputs.description }}"
-          IS_DRY_RUN="${{ needs.detect-changes.outputs.is_dry_run }}"
-
-          echo "🚀 Deploying version: $VERSION"
-          echo "📝 Description: $DESCRIPTION"
-
-          if [[ "$IS_DRY_RUN" == "true" ]]; then
-            echo "🧪 DRY RUN MODE - No actual deployment"
-            echo "Would deploy: mike deploy \"$VERSION\" \"$DESCRIPTION\" --push"
-
-            # Test Mike deployment locally without push
-            mike deploy "$VERSION" "$DESCRIPTION"
-            echo "✅ Dry run: Version $VERSION would deploy successfully"
-
-            # Show what would be deployed
-            echo "📋 Mike versions after dry run deployment:"
-            mike list
-
-            # Clean up dry run version
-            mike delete "$VERSION" || true
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            DESCRIPTION="${{ github.event.inputs.description }}"
           else
-            echo "🚀 LIVE DEPLOYMENT MODE"
-            # Deploy the version
-            mike deploy "$VERSION" "$DESCRIPTION" --push
-            echo "✅ Version $VERSION deployed successfully"
+            DESCRIPTION="Auto-update $(date '+%Y-%m-%d %H:%M')"
           fi
+          echo "description=$DESCRIPTION" >> $GITHUB_OUTPUT
+          echo "📝 Deployment description: $DESCRIPTION"
 
-      - name: Set as default version
-        if: |
-          steps.protection_check.outputs.is_protected == 'false' &&
-          (github.event.inputs.set_default == 'true' || github.event_name == 'release') &&
-          needs.detect-changes.outputs.is_dry_run == 'false'
+      - name: Deploy to 2025.1.STL
         run: |
-          VERSION="${{ needs.detect-changes.outputs.version }}"
-          echo "🎯 Setting $VERSION as default version"
-          mike set-default "$VERSION" --push
-          echo "✅ Default version updated"
+          VERSION="${{ env.TARGET_VERSION }}"
+          DESCRIPTION="${{ steps.description.outputs.description }}"
 
-      - name: Dry run - Set as default version
-        if: |
-          steps.protection_check.outputs.is_protected == 'false' &&
-          (github.event.inputs.set_default == 'true' || github.event_name == 'release') &&
-          needs.detect-changes.outputs.is_dry_run == 'true'
-        run: |
-          VERSION="${{ needs.detect-changes.outputs.version }}"
-          echo "🧪 DRY RUN: Would set $VERSION as default version"
-          echo "Command: mike set-default \"$VERSION\" --push"
-
-      - name: Update protected version (special case)
-        if: steps.protection_check.outputs.is_protected == 'true' && needs.detect-changes.outputs.is_dry_run == 'false'
-        run: |
-          VERSION="${{ needs.detect-changes.outputs.version }}"
-          DESCRIPTION="${{ needs.detect-changes.outputs.description }}"
-
-          echo "🛡️ Updating protected version: $VERSION"
+          echo "🚀 Deploying to version: $VERSION"
           echo "📝 Description: $DESCRIPTION"
 
-          # Force update protected version with special handling
-          mike deploy "$VERSION" "$DESCRIPTION - Protected Update" --push --force
+          # Deploy to the target version (this updates existing version)
+          mike deploy "$VERSION" "$DESCRIPTION" --push
 
-          echo "✅ Protected version $VERSION updated"
-
-      - name: Dry run - Update protected version
-        if: steps.protection_check.outputs.is_protected == 'true' && needs.detect-changes.outputs.is_dry_run == 'true'
-        run: |
-          VERSION="${{ needs.detect-changes.outputs.version }}"
-          DESCRIPTION="${{ needs.detect-changes.outputs.description }}"
-
-          echo "🧪 DRY RUN: Would update protected version: $VERSION"
-          echo "📝 Description: $DESCRIPTION"
-          echo "Command: mike deploy \"$VERSION\" \"$DESCRIPTION - Protected Update\" --push --force"
+          echo "✅ Version $VERSION updated successfully"
 
       - name: Verify deployment
         run: |
           echo "📋 Current Mike versions:"
           mike list
-          
-          echo "🌐 GitHub Pages will be available at:"
-          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+
+          echo "🌐 Live site: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "🎯 Target version: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ env.TARGET_VERSION }}/"
 
       - name: Create deployment summary
         run: |
-          VERSION="${{ needs.detect-changes.outputs.version }}"
-          DESCRIPTION="${{ needs.detect-changes.outputs.description }}"
-          IS_DRY_RUN="${{ needs.detect-changes.outputs.is_dry_run }}"
-
-          if [[ "$IS_DRY_RUN" == "true" ]]; then
-            echo "## 🧪 Dry Run Summary" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Mode**: DRY RUN (No actual deployment)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Version**: $VERSION (would be deployed)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Description**: $DESCRIPTION" >> $GITHUB_STEP_SUMMARY
-            echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 🧪 What Would Happen" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Build would succeed" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Mike deployment would work" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Version would be created: $VERSION" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ No actual push to gh-pages" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ No nginx server update" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 🚀 To Deploy for Real" >> $GITHUB_STEP_SUMMARY
-            echo "Run the workflow again with 'Dry run' unchecked" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Version**: $VERSION" >> $GITHUB_STEP_SUMMARY
-            echo "- **Description**: $DESCRIPTION" >> $GITHUB_STEP_SUMMARY
-            echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 🌐 URLs" >> $GITHUB_STEP_SUMMARY
-            echo "- **Live Site**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
-            echo "- **Version**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/$VERSION/" >> $GITHUB_STEP_SUMMARY
-          fi
-
+          echo "## ✅ Documentation Updated" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📋 Changes Detected" >> $GITHUB_STEP_SUMMARY
-          echo "- **Documentation**: ${{ needs.detect-changes.outputs.docs_changed }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Data**: ${{ needs.detect-changes.outputs.data_changed }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Configuration**: ${{ needs.detect-changes.outputs.config_changed }}" >> $GITHUB_STEP_SUMMARY
-
-  notify:
-    needs: [detect-changes, deploy]
-    if: always() && needs.detect-changes.outputs.should_deploy == 'true'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Notify deployment status
-        run: |
-          if [[ "${{ needs.deploy.result }}" == "success" ]]; then
-            echo "✅ Deployment successful!"
-            echo "🌐 Site updated: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
-          else
-            echo "❌ Deployment failed!"
-            echo "Please check the logs for details."
-          fi
+          echo "- **Version**: ${{ env.TARGET_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Description**: ${{ steps.description.outputs.description }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Live URLs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Main Site**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
+          echo "- **This Version**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ env.TARGET_VERSION }}/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔄 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "The nginx server will be automatically updated in ~2 minutes." >> $GITHUB_STEP_SUMMARY

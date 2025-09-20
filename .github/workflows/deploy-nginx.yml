@@ -1,4 +1,4 @@
-# Deploy to Nginx Server
+# Simple Nginx Server Sync
 name: Deploy to Nginx Server
 
 on:
@@ -9,38 +9,21 @@ on:
       - completed
     branches: [main]
 
-  # Manual trigger for nginx deployment (with options)
+  # Manual trigger
   workflow_dispatch:
-    inputs:
-      server_host:
-        description: 'Server hostname or IP'
-        required: true
-        default: 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com'
-      force_update:
-        description: 'Force update even if no changes'
-        type: boolean
-        default: false
-      dry_run:
-        description: 'Dry run (test without deploying)'
-        type: boolean
-        default: false
 
 env:
   SERVER_USER: ubuntu
+  SERVER_HOST: ec2-3-140-61-206.us-east-2.compute.amazonaws.com
   SERVER_PATH: /var/www/wwt-acws.duckdns.org
-  NGINX_SERVICE: nginx
 
 jobs:
-  deploy-to-nginx:
+  sync-to-nginx:
     runs-on: ubuntu-latest
-    # Run for both automatic (workflow_run) and manual (workflow_dispatch) triggers
-    # Skip if the triggering workflow failed (for workflow_run events)
+    # Only run if the triggering workflow succeeded (for workflow_run) or if manually triggered
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
@@ -48,313 +31,81 @@ jobs:
 
       - name: Add server to known hosts
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ env.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Check server connectivity
+      - name: Test SSH connection
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🔗 Testing connection to $SERVER_HOST..."
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "echo 'Connection successful'"
+          echo "🔍 Testing SSH connection..."
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "echo '✅ SSH connection successful'"
 
-      - name: Backup current site
-        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
+      - name: Sync GitHub Pages to nginx server
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "💾 Creating backup of current site..."
-
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            if [ -d '${{ env.SERVER_PATH }}' ]; then
-              sudo cp -r '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.backup.$(date +%Y%m%d_%H%M%S)'
-              echo '✅ Backup created'
-            else
-              echo '⚠️ No existing site to backup'
-            fi
+          echo "🔄 Syncing GitHub Pages to nginx server..."
+          echo "Source: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "Target: ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.SERVER_PATH }}"
+          
+          # Create temporary directory
+          TEMP_DIR=$(mktemp -d)
+          cd "$TEMP_DIR"
+          
+          echo "📥 Downloading site from GitHub Pages..."
+          wget --recursive \
+               --no-parent \
+               --no-host-directories \
+               --cut-dirs=1 \
+               --page-requisites \
+               --convert-links \
+               --adjust-extension \
+               --no-check-certificate \
+               --timeout=30 \
+               --tries=3 \
+               --quiet \
+               --show-progress \
+               "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" || echo "⚠️ wget completed with warnings (normal for large sites)"
+          
+          echo "📤 Uploading to nginx server..."
+          
+          # Ensure target directory exists and sync files
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "sudo mkdir -p ${{ env.SERVER_PATH }}"
+          
+          rsync -avz --delete \
+                --exclude='.git*' \
+                --exclude='*.tmp' \
+                --exclude='*.log' \
+                ./ ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.SERVER_PATH }}/
+          
+          # Set proper permissions
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+            sudo chown -R www-data:www-data ${{ env.SERVER_PATH }}
+            sudo chmod -R 755 ${{ env.SERVER_PATH }}
+            sudo systemctl reload nginx
+            echo '✅ Files synced, permissions set, nginx reloaded'
           "
-
-      - name: Dry run - Backup simulation
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
-        run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🧪 DRY RUN: Would create backup of current site..."
-          echo "Command: sudo cp -r '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.backup.$(date +%Y%m%d_%H%M%S)'"
-
-      - name: Update site from GitHub
-        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
-        run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🔄 Updating site from GitHub..."
-
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            # Check if site directory exists and has Mike versioning
-            if [ -d '${{ env.SERVER_PATH }}' ]; then
-              echo '📁 Site directory exists, checking for Mike versioning...'
-
-              # Check if Mike versioning structure exists (2025.1.STL directory)
-              if [ -d '${{ env.SERVER_PATH }}/2025.1.STL' ]; then
-                echo '🎯 Mike versioning detected - updating content within version directory...'
-
-                # Clone fresh content to temporary directory using SSH
-                TEMP_DIR=\"/tmp/wwt-docs-update-\$(date +%s)\"
-                git clone -b gh-pages git@github.com:${{ github.repository }}.git \"\$TEMP_DIR\"
-
-                if [ -d \"\$TEMP_DIR\" ]; then
-                  echo '📥 Fresh content cloned to temporary directory'
-
-                  # Update only the 2025.1.STL content, preserving Mike structure
-                  if [ -d \"\$TEMP_DIR/2025.1.STL\" ]; then
-                    echo '🔄 Updating 2025.1.STL content...'
-                    sudo rsync -av --delete \"\$TEMP_DIR/2025.1.STL/\" '${{ env.SERVER_PATH }}/2025.1.STL/'
-                    echo '✅ Version content updated'
-                  else
-                    echo '⚠️ No 2025.1.STL in fresh clone - using root content'
-                    sudo rsync -av --delete --exclude=versions.json \"\$TEMP_DIR/\" '${{ env.SERVER_PATH }}/2025.1.STL/'
-                  fi
-
-                  # Clean up temporary directory
-                  rm -rf \$TEMP_DIR
-                else
-                  echo '❌ Failed to clone fresh content'
-                  exit 1
-                fi
-              else
-                echo '🆕 No Mike versioning - performing full update...'
-                cd '${{ env.SERVER_PATH }}'
-
-                # Standard git update for non-Mike sites
-                if [ -d '.git' ]; then
-                  sudo git fetch origin && sudo git reset --hard origin/gh-pages
-                else
-                  cd /var/www/
-                  sudo mv '${{ env.SERVER_PATH }}' '${{ env.SERVER_PATH }}.old'
-                  sudo git clone -b gh-pages git@github.com:${{ github.repository }}.git '${{ env.SERVER_PATH }}'
-                fi
-              fi
-            else
-              echo '🆕 Site directory does not exist, creating and cloning repository...'
-              cd /var/www/
-              sudo mkdir -p \$(dirname '${{ env.SERVER_PATH }}')
-              sudo git clone -b gh-pages git@github.com:${{ github.repository }}.git '${{ env.SERVER_PATH }}'
-            fi
-
-            echo '✅ Site updated from GitHub'
-          "
-
-      - name: Dry run - Update simulation
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
-        run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🧪 DRY RUN: Would update site from GitHub..."
-
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            if [ -d '${{ env.SERVER_PATH }}' ]; then
-              echo '📁 Site directory exists'
-              cd '${{ env.SERVER_PATH }}'
-
-              if [ -d '.git' ]; then
-                echo '🧪 Would run: git config credential.helper && git fetch origin && git reset --hard origin/gh-pages'
-                echo 'Current branch:' \$(git branch --show-current)
-                echo 'Current commit:' \$(git log -1 --oneline)
-                echo 'Remote status (if accessible):' \$(git status -uno 2>/dev/null || echo 'Git status unavailable')
-
-                # Test if we can access remote
-                if sudo GIT_TERMINAL_PROMPT=0 git ls-remote origin gh-pages >/dev/null 2>&1; then
-                  echo '✅ Remote access working'
-                else
-                  echo '⚠️ Remote access issue - would re-clone repository'
-                fi
-              else
-                echo '🧪 Directory exists but not a git repo - would re-clone'
-              fi
-            else
-              echo '🧪 Site directory does not exist - would create and clone'
-              echo '🧪 Would run: mkdir -p \$(dirname ${{ env.SERVER_PATH }}) && git clone -b gh-pages git@github.com:${{ github.repository }}.git'
-            fi
-          "
-
-      - name: Set proper permissions
-        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
-        run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🔐 Setting proper permissions..."
-
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            sudo chown -R www-data:www-data '${{ env.SERVER_PATH }}'
-            sudo chmod -R 755 '${{ env.SERVER_PATH }}'
-            sudo find '${{ env.SERVER_PATH }}' -type f -exec chmod 644 {} \;
-            echo '✅ Permissions set'
-          "
-
-      - name: Dry run - Permissions simulation
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
-        run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🧪 DRY RUN: Would set proper permissions..."
-          echo "Commands:"
-          echo "  sudo chown -R www-data:www-data '${{ env.SERVER_PATH }}'"
-          echo "  sudo chmod -R 755 '${{ env.SERVER_PATH }}'"
-          echo "  sudo find '${{ env.SERVER_PATH }}' -type f -exec chmod 644 {} \;"
-
-      - name: Validate nginx configuration
-        run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🔧 Validating nginx configuration..."
-
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            sudo nginx -t
-            if [ \$? -eq 0 ]; then
-              echo '✅ Nginx configuration is valid'
-            else
-              echo '❌ Nginx configuration has errors'
-              exit 1
-            fi
-          "
-
-      - name: Reload nginx
-        if: ${{ github.event_name == 'workflow_run' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
-        run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🔄 Reloading nginx..."
-
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            sudo systemctl reload ${{ env.NGINX_SERVICE }}
-            sudo systemctl status ${{ env.NGINX_SERVICE }} --no-pager -l
-            echo '✅ Nginx reloaded'
-          "
-
-      - name: Dry run - Nginx reload simulation
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
-        run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🧪 DRY RUN: Would reload nginx..."
-          echo "Command: sudo systemctl reload ${{ env.NGINX_SERVICE }}"
-
-          # Still check nginx status in dry run
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            sudo systemctl status ${{ env.NGINX_SERVICE }} --no-pager -l
-          "
+          
+          # Clean up
+          rm -rf "$TEMP_DIR"
+          echo "✅ Sync completed successfully"
 
       - name: Test site accessibility
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🌐 Testing site accessibility..."
-
-          # Test local access from server
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            # Test local nginx response
-            HTTP_CODE=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)
-            if [ \"\$HTTP_CODE\" = '200' ]; then
-              echo \"✅ Local site is accessible (HTTP \$HTTP_CODE)\"
-            else
-              echo \"⚠️ Local site returned HTTP \$HTTP_CODE\"
-            fi
-
-            # Test if site directory and index.html exist
-            if [ -d '${{ env.SERVER_PATH }}' ]; then
-              echo '✅ Site directory exists'
-              if [ -f '${{ env.SERVER_PATH }}/index.html' ]; then
-                echo '✅ index.html found'
-              else
-                echo '❌ index.html not found'
-                echo 'Directory contents:'
-                ls -la '${{ env.SERVER_PATH }}/' || echo 'Cannot list directory contents'
-              fi
-            else
-              echo '❌ Site directory does not exist: ${{ env.SERVER_PATH }}'
-              echo 'Available directories in /var/www/:'
-              ls -la /var/www/ || echo 'Cannot list /var/www/ contents'
-            fi
-          "
-
-      - name: Update deployment status
-        run: |
-          IS_DRY_RUN="${{ github.event.inputs.dry_run }}"
-
-          if [[ "$IS_DRY_RUN" == "true" ]]; then
-            echo "## 🧪 Nginx Dry Run Summary" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Mode**: DRY RUN (No actual deployment)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Server**: ${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **Path**: ${{ env.SERVER_PATH }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **Status**: ✅ Dry Run Completed" >> $GITHUB_STEP_SUMMARY
-            echo "- **Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 🧪 What Would Happen" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Server connectivity verified" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Would create site backup" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Would update content from gh-pages" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Would configure permissions" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Nginx configuration validated" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Would reload nginx service" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Would test site accessibility" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 🚀 To Deploy for Real" >> $GITHUB_STEP_SUMMARY
-            echo "Run the workflow again with 'Dry run' unchecked" >> $GITHUB_STEP_SUMMARY
+          echo "🔍 Testing site accessibility..."
+          sleep 10  # Give nginx a moment to reload
+          
+          if curl -s -f "https://wwt-acws.duckdns.org/2025.1.STL/" > /dev/null; then
+            echo "✅ Site accessible at https://wwt-acws.duckdns.org/2025.1.STL/"
           else
-            echo "## 🚀 Nginx Deployment Summary" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Server**: ${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **Path**: ${{ env.SERVER_PATH }}" >> $GITHUB_STEP_SUMMARY
-            echo "- **Status**: ✅ Deployed Successfully" >> $GITHUB_STEP_SUMMARY
-            echo "- **Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 🌐 Site URLs" >> $GITHUB_STEP_SUMMARY
-            echo "- **Main Site**: http://wwt-acws.duckdns.org/" >> $GITHUB_STEP_SUMMARY
-            echo "- **GitHub Pages**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 📋 Deployment Steps Completed" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Server connectivity verified" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Site backup created" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Content updated from gh-pages" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Permissions configured" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Nginx configuration validated" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Nginx service reloaded" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Site accessibility tested" >> $GITHUB_STEP_SUMMARY
+            echo "❌ Site not accessible"
+            exit 1
           fi
 
-  cleanup-old-backups:
-    needs: deploy-to-nginx
-    runs-on: ubuntu-latest
-    if: success()
-
-    steps:
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.NGINX_SERVER_SSH_KEY }}
-
-      - name: Add server to known hosts
+      - name: Create deployment summary
         run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
-
-      - name: Cleanup old backups
-        run: |
-          SERVER_HOST="${{ github.event.inputs.server_host || 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com' }}"
-          echo "🧹 Cleaning up old backups..."
-
-          ssh ${{ env.SERVER_USER }}@$SERVER_HOST "
-            # Keep only the 5 most recent backups
-            cd /var/www/
-            sudo find . -name 'wwt-acws.duckdns.org.backup.*' -type d | sort -r | tail -n +6 | sudo xargs rm -rf
-
-            # List remaining backups
-            echo 'Remaining backups:'
-            sudo find . -name 'wwt-acws.duckdns.org.backup.*' -type d | sort
-          "
-
-  notify-deployment:
-    needs: [deploy-to-nginx, cleanup-old-backups]
-    runs-on: ubuntu-latest
-    if: always()
-    
-    steps:
-      - name: Notify deployment result
-        run: |
-          if [[ "${{ needs.deploy-to-nginx.result }}" == "success" ]]; then
-            echo "✅ Nginx deployment completed successfully!"
-            echo "🌐 Site is now live at: http://wwt-acws.duckdns.org/"
-          else
-            echo "❌ Nginx deployment failed!"
-            echo "Please check the deployment logs for details."
-          fi
+          echo "## ✅ Nginx Server Updated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Server**: ${{ env.SERVER_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Path**: ${{ env.SERVER_PATH }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Live Site" >> $GITHUB_STEP_SUMMARY
+          echo "- **Main**: https://wwt-acws.duckdns.org/" >> $GITHUB_STEP_SUMMARY
+          echo "- **2025.1.STL**: https://wwt-acws.duckdns.org/2025.1.STL/" >> $GITHUB_STEP_SUMMARY
