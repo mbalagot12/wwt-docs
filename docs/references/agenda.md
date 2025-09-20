@@ -1,5 +1,4 @@
 # Campus Workshop Agenda
-*Updated: September 20, 2025 - Public Repository with Reliable CI/CD*
 
 | Time | Activity |
 | --- | --- |
