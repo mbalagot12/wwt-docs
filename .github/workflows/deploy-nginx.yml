@@ -67,21 +67,27 @@ jobs:
           
           # Ensure target directory exists and sync files
           ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "sudo mkdir -p ${{ env.SERVER_PATH }}"
-          
+
+          # First, fix permissions so rsync can work
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+            sudo chown -R ${{ env.SERVER_USER }}:${{ env.SERVER_USER }} ${{ env.SERVER_PATH }}
+            echo '🔧 Permissions fixed for rsync'
+          "
+
           rsync -avz --delete \
                 --exclude='.git*' \
                 --exclude='*.tmp' \
                 --exclude='*.log' \
                 ./ ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.SERVER_PATH }}/
-          
-          # Set proper permissions
+
+          # Set proper web server permissions
           ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
             sudo chown -R www-data:www-data ${{ env.SERVER_PATH }}
             sudo chmod -R 755 ${{ env.SERVER_PATH }}
             sudo systemctl reload nginx
             echo '✅ Files synced, permissions set, nginx reloaded'
           "
-          
+
           # Clean up
           rm -rf "$TEMP_DIR"
           echo "✅ Sync completed successfully"
