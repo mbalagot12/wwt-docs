@@ -1,0 +1,172 @@
+name: Bulletproof Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  TARGET_VERSION: '2025.1.STL'
+  SERVER_HOST: 'ec2-3-140-61-206.us-east-2.compute.amazonaws.com'
+  SERVER_USER: 'ubuntu'
+  SERVER_PATH: '/var/www/wwt-acws.duckdns.org'
+
+jobs:
+  bulletproof-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Set up UV environment
+        run: |
+          uv venv .venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+          echo "PATH=.venv/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: uv pip install -r requirements.txt
+
+      - name: Build site with MkDocs
+        run: |
+          echo "🚀 Building site with latest changes..."
+          mkdocs build
+          echo "✅ Site built successfully"
+
+      - name: Create backup of current site
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.NGINX_SERVER_SSH_KEY }}
+      
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ env.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Backup current site before deployment
+        run: |
+          echo "🛡️ Creating backup before deployment..."
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+            # Create timestamped backup
+            BACKUP_NAME=\"wwt-acws.duckdns.org.backup.\$(date +%Y%m%d_%H%M%S)\"
+            sudo cp -r ${{ env.SERVER_PATH }} /var/www/\$BACKUP_NAME
+            echo \"✅ Backup created: \$BACKUP_NAME\"
+          "
+
+      - name: Validate built site
+        run: |
+          echo "🔍 Validating built site..."
+          
+          # Check if site directory exists and has content
+          if [ ! -d "site" ]; then
+            echo "❌ ERROR: site directory not found"
+            exit 1
+          fi
+          
+          # Check if index.html exists
+          if [ ! -f "site/index.html" ]; then
+            echo "❌ ERROR: index.html not found"
+            exit 1
+          fi
+          
+          # Check site size (should be > 1MB for our content)
+          SITE_SIZE=$(du -sm site | cut -f1)
+          if [ "$SITE_SIZE" -lt 1 ]; then
+            echo "❌ ERROR: Site too small ($SITE_SIZE MB), likely build failed"
+            exit 1
+          fi
+          
+          echo "✅ Site validation passed (Size: ${SITE_SIZE}MB)"
+
+      - name: Deploy to nginx server
+        run: |
+          echo "📤 Deploying to nginx server..."
+          
+          # Fix permissions for deployment
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+            sudo chown -R ${{ env.SERVER_USER }}:${{ env.SERVER_USER }} ${{ env.SERVER_PATH }}
+          "
+          
+          # Deploy with rsync
+          rsync -avz --delete \
+                --exclude='.git*' \
+                --exclude='*.tmp' \
+                --exclude='*.log' \
+                --exclude='node_modules' \
+                site/ ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.SERVER_PATH }}/
+          
+          echo "✅ Files deployed successfully"
+
+      - name: Set proper permissions and reload nginx
+        run: |
+          echo "🔐 Setting permissions and reloading nginx..."
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+            # Set proper web server permissions
+            sudo chown -R www-data:www-data ${{ env.SERVER_PATH }}
+            sudo chmod -R 755 ${{ env.SERVER_PATH }}
+            
+            # Reload nginx
+            sudo systemctl reload nginx
+            
+            echo '✅ Permissions set and nginx reloaded'
+          "
+
+      - name: Health check
+        run: |
+          echo "🏥 Performing health check..."
+          
+          # Wait a moment for nginx to pick up changes
+          sleep 10
+          
+          # Test main site
+          if curl -f -s "https://wwt-acws.duckdns.org/${{ env.TARGET_VERSION }}/" > /dev/null; then
+            echo "✅ Main site accessible"
+          else
+            echo "❌ Main site not accessible"
+            exit 1
+          fi
+          
+          # Test agenda page (common change)
+          if curl -f -s "https://wwt-acws.duckdns.org/${{ env.TARGET_VERSION }}/references/agenda/" > /dev/null; then
+            echo "✅ Agenda page accessible"
+          else
+            echo "⚠️ Agenda page not accessible (may be normal if not in nav)"
+          fi
+          
+          echo "✅ Health check passed"
+
+      - name: Deployment summary
+        run: |
+          echo "## ✅ Bulletproof Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Method**: Direct to nginx (bypasses GitHub Pages)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ env.TARGET_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backup**: Created before deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Health Check**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Live Site" >> $GITHUB_STEP_SUMMARY
+          echo "**https://wwt-acws.duckdns.org/${{ env.TARGET_VERSION }}/**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ⚡ Ready for Live Presentations" >> $GITHUB_STEP_SUMMARY
+          echo "- Changes deploy in ~2-3 minutes" >> $GITHUB_STEP_SUMMARY
+          echo "- Automatic backup before each deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- Health checks ensure reliability" >> $GITHUB_STEP_SUMMARY
+          echo "- Perfect for instant student feedback fixes" >> $GITHUB_STEP_SUMMARY
