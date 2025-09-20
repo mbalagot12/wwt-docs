@@ -159,4 +159,4 @@ sharpen_images.py
 # Shell scripts
 *.sh
 #backup
-.backup
+.backuplocal-test-backups/

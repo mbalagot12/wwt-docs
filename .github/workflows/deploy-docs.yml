@@ -2,13 +2,14 @@
 name: Deploy Documentation
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'docs/**'
-      - 'data/**'
-      - 'mkdocs.yml'
-      - 'requirements.txt'
+  # DISABLED: Replaced by bulletproof-deploy.yml
+  # push:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'docs/**'
+  #     - 'data/**'
+  #     - 'mkdocs.yml'
+  #     - 'requirements.txt'
 
   # Manual trigger - simplified
   workflow_dispatch:
