@@ -1,11 +1,12 @@
 name: Bulletproof Deploy
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - 'mkdocs.yml'
+  # DISABLED: Caused site failure - needs debugging
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'docs/**'
+  #     - 'mkdocs.yml'
   workflow_dispatch:
 
 env:
