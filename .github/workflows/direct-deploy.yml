@@ -1,11 +1,12 @@
 name: Direct Deploy (Bulletproof)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - 'mkdocs.yml'
+  # DISABLED: Causes site corruption - use manual deployment only
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'docs/**'
+  #     - 'mkdocs.yml'
   workflow_dispatch:
 
 env:

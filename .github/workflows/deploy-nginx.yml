@@ -2,12 +2,12 @@
 name: Deploy to Nginx Server
 
 on:
-  # Automatic deployment when GitHub Pages deployment completes
-  workflow_run:
-    workflows: ["Deploy Documentation"]
-    types:
-      - completed
-    branches: [main]
+  # DISABLED: Automatic deployment causes site corruption
+  # workflow_run:
+  #   workflows: ["Deploy Documentation"]
+  #   types:
+  #     - completed
+  #   branches: [main]
 
   # Manual trigger
   workflow_dispatch:
@@ -20,8 +20,8 @@ env:
 jobs:
   sync-to-nginx:
     runs-on: ubuntu-latest
-    # Only run if the triggering workflow succeeded (for workflow_run) or if manually triggered
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
+    # Only run if manually triggered (automatic trigger disabled to prevent site corruption)
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     
     steps:
       - name: Setup SSH
