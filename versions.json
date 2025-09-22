@@ -1,10 +1,12 @@
 [
   {
     "version": "2025.1.STLv2",
-    "aliases": []
+    "title": "2025.1.STLv2",
+    "aliases": ["latest"]
   },
   {
     "version": "2025.1.STL",
+    "title": "2025.1.STL",
     "aliases": []
   }
 ]
