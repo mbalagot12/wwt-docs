@@ -1,12 +1,5 @@
 [
   {
-    "version": "2025.09.c5b7937",
-    "title": "2025.09.c5b7937",
-    "aliases": [
-      "Auto-deployment 2025-09-20 11:30"
-    ]
-  },
-  {
     "version": "2025.1.STLv2",
     "title": "2025.1.STLv2",
     "aliases": [
@@ -17,29 +10,29 @@
     "version": "2025.1.STL",
     "title": "2025.1.STL",
     "aliases": [
-      "Auto-update 2025-09-20 13:08",
-      "Auto-update 2025-09-20 13:07",
-      "Complete login_cv.md update: buttons, images, and tab titles",
-      "latest",
-      "Workshop agenda changes 2025-09-20 10:33:59",
-      "Auto-update 2025-09-20 13:46",
-      "Update login_cv.md: Add buttons, update tab titles, and new images",
-      "Fix CVaaS Orgname column position in access.md table",
-      "Add CVaaS Orgname column to lab assignment tables",
-      "Fix c03_lab.md snippet inclusion syntax",
-      "Latest with agenda changes",
-      "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
-      "Manual content update",
-      "Latest changes 2025-09-20 10:06:41",
+      "Workshop agenda changes 2025-09-20 10:33:30",
       "Final login_cv.md update: CVaaS button with org name instruction",
       "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
-      "Emergency site restoration",
+      "Auto-update 2025-09-20 13:46",
+      "Manual content update",
+      "Fix c03_lab.md snippet inclusion syntax",
+      "Auto-update 2025-09-20 13:08",
       "Force update latest 00_cvaas_login_new.png image",
+      "Workshop agenda changes 2025-09-20 10:33:45",
+      "Emergency site restoration",
+      "Complete login_cv.md update: buttons, images, and tab titles",
+      "Latest with agenda changes",
+      "Add CVaaS Orgname column to lab assignment tables",
       "Update login_cv.md content",
-      "Workshop agenda changes 2025-09-20 10:33:30",
+      "Update login_cv.md: Add buttons, update tab titles, and new images",
+      "Fix CVaaS Orgname column position in access.md table",
       "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi",
-      "Force refresh: c02_lab.md update and login_cvcue.md snippet processing",
-      "Workshop agenda changes 2025-09-20 10:33:45"
+      "Auto-update 2025-09-20 13:07",
+      "Latest changes 2025-09-20 10:06:41",
+      "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
+      "Workshop agenda changes 2025-09-20 10:33:59",
+      "latest",
+      "Force refresh: c02_lab.md update and login_cvcue.md snippet processing"
     ]
   }
 ]
