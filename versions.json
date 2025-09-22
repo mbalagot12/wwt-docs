@@ -1,12 +1,5 @@
 [
   {
-    "version": "2025.09.7cd28e3",
-    "title": "2025.09.7cd28e3",
-    "aliases": [
-      "Auto-deployment 2025-09-19 10:50"
-    ]
-  },
-  {
     "version": "2025.09.7cc47d3",
     "title": "2025.09.7cc47d3",
     "aliases": [
@@ -38,29 +31,29 @@
     "version": "2025.1.STL",
     "title": "2025.1.STL",
     "aliases": [
-      "Workshop agenda changes 2025-09-20 10:33:45",
-      "Final login_cv.md update: CVaaS button with org name instruction",
-      "Emergency site restoration",
-      "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
-      "Workshop agenda changes 2025-09-20 10:33:59",
-      "Auto-update 2025-09-20 13:08",
-      "Manual content update",
-      "Force update latest 00_cvaas_login_new.png image",
-      "Latest changes 2025-09-20 10:06:41",
-      "Update login_cv.md: Add buttons, update tab titles, and new images",
-      "Force refresh: c02_lab.md update and login_cvcue.md snippet processing",
-      "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
-      "Workshop agenda changes 2025-09-20 10:33:30",
-      "Update login_cv.md content",
-      "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi",
       "Latest with agenda changes",
-      "latest",
+      "Complete login_cv.md update: buttons, images, and tab titles",
+      "Auto-update 2025-09-20 13:07",
+      "Auto-update 2025-09-20 13:08",
+      "Update login_cv.md: Add buttons, update tab titles, and new images",
+      "Latest changes 2025-09-20 10:06:41",
+      "Emergency site restoration",
+      "Fix CVaaS Orgname column position in access.md table",
+      "Force update latest 00_cvaas_login_new.png image",
+      "Workshop agenda changes 2025-09-20 10:33:59",
+      "Final login_cv.md update: CVaaS button with org name instruction",
       "Auto-update 2025-09-20 13:46",
       "Fix c03_lab.md snippet inclusion syntax",
-      "Auto-update 2025-09-20 13:07",
-      "Fix CVaaS Orgname column position in access.md table",
+      "Force refresh: c02_lab.md update and login_cvcue.md snippet processing",
+      "latest",
+      "Workshop agenda changes 2025-09-20 10:33:45",
+      "Manual content update",
+      "Workshop agenda changes 2025-09-20 10:33:30",
+      "Update login_cv.md content",
       "Add CVaaS Orgname column to lab assignment tables",
-      "Complete login_cv.md update: buttons, images, and tab titles"
+      "Cache-busting: Use 00_cvaas_login_v2.png to force browser refresh",
+      "Update CVaaS login image to 00_cvaas_login_new.png for better page fit",
+      "Terminology consistency: CVaas\u2192CVaaS, Wifi\u2192WiFi"
     ]
   }
 ]
